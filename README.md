@@ -20,10 +20,10 @@ Execute requests by streaming JSON requests to stdin:
 
 ```bash
 # Health check probe
-printf '{"id":"1","capability":"health","payload":{}}\n' | python -m kitt_workers.runner
+printf '{"id":"1","capability":"health","payload":{}}\n' | python3 -m kitt_workers.runner
 ```
 
-Output:
+Sample output:
 ```json
 {"id":"1","ok":true,"payload":{"status":"ok"},"error":null}
 ```
@@ -33,7 +33,9 @@ Output:
 ## 🧪 Testing
 
 ```bash
-python -m unittest discover tests
+pytest
+# or
+python3 -m unittest discover tests
 ```
 
 ---
