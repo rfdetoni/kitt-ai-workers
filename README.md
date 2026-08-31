@@ -16,6 +16,8 @@ Provides a lightweight, dependency-free foundation for executing machine learnin
 
 ## 🚀 Usage
 
+### 1. Stdio NDJSON Worker Tasks
+
 Execute requests by streaming JSON requests to stdin:
 
 ```bash
@@ -26,6 +28,15 @@ printf '{"id":"1","capability":"health","payload":{}}\n' | python3 -m kitt_worke
 Sample output:
 ```json
 {"id":"1","ok":true,"payload":{"status":"ok"},"error":null}
+```
+
+### 2. 100% Local STT (Whisper) Server
+
+Run local Speech-to-Text HTTP server for voice transcription on `127.0.0.1:8000`:
+
+```bash
+# Run local STT server using faster-whisper / whisper on loopback
+python3 -m kitt_workers.stt_server --port 8000 --model base
 ```
 
 ---
