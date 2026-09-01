@@ -56,6 +56,11 @@ def _validated_content_length(raw: str | None) -> int:
     return size
 
 
+def _browser_origin_forbidden(origin: str | None) -> bool:
+    """The STT endpoint is machine-to-machine; browsers must not drive it."""
+    return origin is not None
+
+
 def get_whisper_engine(model_name: str = "base"):
     global _WHISPER_MODEL_INSTANCE, _ENGINE_NAME
     if _WHISPER_MODEL_INSTANCE is not None:
@@ -203,6 +208,13 @@ class LocalSTTRequestHandler(BaseHTTPRequestHandler):
     def do_POST(self) -> None:
         if self.path != "/v1/audio/transcriptions":
             self._send_json(HTTPStatus.NOT_FOUND, {"error": "not found"})
+            return
+
+        if _browser_origin_forbidden(self.headers.get("Origin")):
+            self._send_json(
+                HTTPStatus.FORBIDDEN,
+                {"error": "browser-originated requests are forbidden"},
+            )
             return
 
         if not _engine_ready():

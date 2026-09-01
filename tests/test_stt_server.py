@@ -3,6 +3,7 @@ import unittest
 import kitt_workers.stt_server as stt_server
 from kitt_workers.stt_server import (
     _MAX_REQUEST_BYTES,
+    _browser_origin_forbidden,
     _parse_multipart,
     _validate_loopback_host,
     _validated_content_length,
@@ -58,6 +59,12 @@ class TestSttServer(unittest.TestCase):
             _validated_content_length("not-a-number")
         with self.assertRaises(OverflowError):
             _validated_content_length(str(_MAX_REQUEST_BYTES + 1))
+
+    def test_browser_origin_is_rejected_for_machine_api(self):
+        self.assertFalse(_browser_origin_forbidden(None))
+        self.assertTrue(_browser_origin_forbidden("http://localhost:3000"))
+        self.assertTrue(_browser_origin_forbidden("https://evil.example"))
+        self.assertTrue(_browser_origin_forbidden("null"))
 
     def test_engine_readiness_requires_loaded_real_engine(self):
         original_instance = stt_server._WHISPER_MODEL_INSTANCE
