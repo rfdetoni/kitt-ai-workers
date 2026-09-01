@@ -22,6 +22,7 @@ _ENGINE_NAME: str = "none"
 _SERVER_MODEL_NAME: str = "base"
 
 _MAX_REQUEST_BYTES = 26 * 1024 * 1024
+_CLIENT_READ_TIMEOUT_SECONDS = 15.0
 
 
 def _validate_loopback_host(host: str) -> str:
@@ -86,13 +87,23 @@ def get_whisper_engine(model_name: str = "base"):
     except ImportError:
         pass
 
-    _ENGINE_NAME = "mock"
+    _ENGINE_NAME = "unavailable"
     print(
-        "[STT] Notice: neither 'faster-whisper' nor 'whisper' is installed. "
-        "Using fallback mock STT.",
+        "[STT] Warning: neither 'faster-whisper' nor 'whisper' is installed. "
+        "STT is unavailable until a local engine is installed.",
         flush=True,
     )
     return None
+
+
+def _engine_ready() -> bool:
+    return (
+        _WHISPER_MODEL_INSTANCE is not None
+        and (
+            _ENGINE_NAME.startswith("faster-whisper")
+            or _ENGINE_NAME.startswith("whisper")
+        )
+    )
 
 
 def transcribe_audio_file(
@@ -156,6 +167,10 @@ class LocalSTTRequestHandler(BaseHTTPRequestHandler):
     server_version = "KITT-Local-STT/1"
     sys_version = ""
 
+    def setup(self) -> None:
+        super().setup()
+        self.connection.settimeout(_CLIENT_READ_TIMEOUT_SECONDS)
+
     def log_message(self, format: str, *args: Any) -> None:
         pass
 
@@ -171,10 +186,12 @@ class LocalSTTRequestHandler(BaseHTTPRequestHandler):
 
     def do_GET(self) -> None:
         if self.path in ("/", "/health", "/v1/health"):
+            ready = _engine_ready()
             self._send_json(
                 HTTPStatus.OK,
                 {
-                    "status": "ok",
+                    "status": "ok" if ready else "degraded",
+                    "ready": ready,
                     "service": "kitt-local-stt",
                     "engine": _ENGINE_NAME,
                     "model": _SERVER_MODEL_NAME,
@@ -186,6 +203,13 @@ class LocalSTTRequestHandler(BaseHTTPRequestHandler):
     def do_POST(self) -> None:
         if self.path != "/v1/audio/transcriptions":
             self._send_json(HTTPStatus.NOT_FOUND, {"error": "not found"})
+            return
+
+        if not _engine_ready():
+            self._send_json(
+                HTTPStatus.SERVICE_UNAVAILABLE,
+                {"error": "local STT engine is unavailable"},
+            )
             return
 
         content_type = self.headers.get("Content-Type", "")
@@ -212,7 +236,14 @@ class LocalSTTRequestHandler(BaseHTTPRequestHandler):
             self._send_json(status, {"error": str(exc)})
             return
 
-        body = self.rfile.read(content_length)
+        try:
+            body = self.rfile.read(content_length)
+        except TimeoutError:
+            self._send_json(
+                HTTPStatus.REQUEST_TIMEOUT,
+                {"error": "request body read timed out"},
+            )
+            return
         if len(body) != content_length:
             self._send_json(
                 HTTPStatus.BAD_REQUEST,

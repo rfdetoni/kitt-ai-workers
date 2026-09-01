@@ -1,5 +1,6 @@
 import unittest
 
+import kitt_workers.stt_server as stt_server
 from kitt_workers.stt_server import (
     _MAX_REQUEST_BYTES,
     _parse_multipart,
@@ -57,6 +58,24 @@ class TestSttServer(unittest.TestCase):
             _validated_content_length("not-a-number")
         with self.assertRaises(OverflowError):
             _validated_content_length(str(_MAX_REQUEST_BYTES + 1))
+
+    def test_engine_readiness_requires_loaded_real_engine(self):
+        original_instance = stt_server._WHISPER_MODEL_INSTANCE
+        original_name = stt_server._ENGINE_NAME
+        try:
+            stt_server._WHISPER_MODEL_INSTANCE = None
+            stt_server._ENGINE_NAME = "unavailable"
+            self.assertFalse(stt_server._engine_ready())
+
+            stt_server._WHISPER_MODEL_INSTANCE = object()
+            stt_server._ENGINE_NAME = "faster-whisper (base)"
+            self.assertTrue(stt_server._engine_ready())
+
+            stt_server._ENGINE_NAME = "whisper (base)"
+            self.assertTrue(stt_server._engine_ready())
+        finally:
+            stt_server._WHISPER_MODEL_INSTANCE = original_instance
+            stt_server._ENGINE_NAME = original_name
 
 
 if __name__ == "__main__":
