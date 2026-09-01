@@ -225,6 +225,22 @@ class LocalSTTRequestHandler(BaseHTTPRequestHandler):
                 },
             )
             return
+        if self.path in ("/v1/models", "/models"):
+            self._send_json(
+                HTTPStatus.OK,
+                {
+                    "object": "list",
+                    "data": [
+                        {"id": "whisper-1", "object": "model", "owned_by": "openai"},
+                        {"id": "base", "object": "model", "owned_by": "local-whisper"},
+                        {"id": "tiny", "object": "model", "owned_by": "local-whisper"},
+                        {"id": "small", "object": "model", "owned_by": "local-whisper"},
+                        {"id": "medium", "object": "model", "owned_by": "local-whisper"},
+                        {"id": "large-v3", "object": "model", "owned_by": "local-whisper"},
+                    ],
+                },
+            )
+            return
         self._send_json(HTTPStatus.NOT_FOUND, {"error": "not found"})
 
     def do_POST(self) -> None:

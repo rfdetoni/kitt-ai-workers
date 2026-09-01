@@ -113,6 +113,25 @@ class TestSttServer(unittest.TestCase):
             stt_server._WHISPER_MODEL_INSTANCE = original_instance
             stt_server._ENGINE_NAME = original_name
 
+    def test_models_endpoint_returns_whisper_models(self):
+        class FakeHandler(stt_server.LocalSTTRequestHandler):
+            def __init__(self):
+                self.sent_status = None
+                self.sent_data = None
+
+            def _send_json(self, status, data):
+                self.sent_status = status
+                self.sent_data = data
+
+        handler = FakeHandler()
+        handler.path = "/v1/models"
+        handler.do_GET()
+        self.assertEqual(handler.sent_status, 200)
+        self.assertIn("data", handler.sent_data)
+        model_ids = [m["id"] for m in handler.sent_data["data"]]
+        self.assertIn("whisper-1", model_ids)
+        self.assertIn("base", model_ids)
+
 
 if __name__ == "__main__":
     unittest.main()
