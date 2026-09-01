@@ -1,5 +1,12 @@
 import unittest
-from kitt_workers.stt_server import _parse_multipart, transcribe_audio_file
+
+from kitt_workers.stt_server import (
+    _MAX_REQUEST_BYTES,
+    _parse_multipart,
+    _validate_loopback_host,
+    _validated_content_length,
+    transcribe_audio_file,
+)
 
 
 class TestSttServer(unittest.TestCase):
@@ -25,9 +32,31 @@ class TestSttServer(unittest.TestCase):
         self.assertEqual(language, "pt")
         self.assertEqual(model, "base")
 
-    def test_mock_transcribe_returns_empty_when_no_whisper(self):
+    def test_mock_transcribe_returns_empty_when_file_is_missing(self):
         result = transcribe_audio_file("/nonexistent/file.wav")
         self.assertIsInstance(result, str)
+        self.assertEqual(result, "")
+
+    def test_loopback_validation_rejects_network_bind(self):
+        self.assertEqual(_validate_loopback_host("127.0.0.1"), "127.0.0.1")
+        self.assertEqual(_validate_loopback_host("localhost"), "localhost")
+        with self.assertRaises(ValueError):
+            _validate_loopback_host("0.0.0.0")
+        with self.assertRaises(ValueError):
+            _validate_loopback_host("192.168.1.10")
+        with self.assertRaises(ValueError):
+            _validate_loopback_host("example.com")
+
+    def test_content_length_is_bounded(self):
+        self.assertEqual(_validated_content_length("123"), 123)
+        with self.assertRaises(ValueError):
+            _validated_content_length(None)
+        with self.assertRaises(ValueError):
+            _validated_content_length("-1")
+        with self.assertRaises(ValueError):
+            _validated_content_length("not-a-number")
+        with self.assertRaises(OverflowError):
+            _validated_content_length(str(_MAX_REQUEST_BYTES + 1))
 
 
 if __name__ == "__main__":
