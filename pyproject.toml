@@ -6,6 +6,14 @@ dependencies = [
   "kitt-protocol @ git+https://github.com/rfdetoni/kitt-protocol.git@main#subdirectory=sdk/python",
 ]
 
+[project.optional-dependencies]
+stt = [
+  "faster-whisper>=1.0",
+]
+
+[project.scripts]
+kitt-stt = "kitt_workers.stt_server:main"
+
 [build-system]
 requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"

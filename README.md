@@ -32,12 +32,23 @@ Sample output:
 
 ### 2. 100% Local STT (Whisper) Server
 
-Run local Speech-to-Text HTTP server for voice transcription on `127.0.0.1:8000`:
+Install the STT extra once:
 
 ```bash
-# Run local STT server using faster-whisper / whisper on loopback
+python3 -m pip install -e ".[stt]"
+```
+
+Then run the OpenAI-compatible local server on `127.0.0.1:8000`:
+
+```bash
+kitt-stt --port 8000 --model base
+# equivalent:
 python3 -m kitt_workers.stt_server --port 8000 --model base
 ```
+
+`kitt-assistant` can start `kitt-stt` automatically when local voice STT is
+required. A supervised worker receives `--parent-stdin-lifecycle` so it exits
+when the Assistant that owns it terminates.
 
 ---
 

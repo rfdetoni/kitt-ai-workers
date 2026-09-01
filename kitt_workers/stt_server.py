@@ -13,6 +13,7 @@ import json
 import os
 import sys
 import tempfile
+import threading
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from typing import Any
@@ -59,6 +60,27 @@ def _validated_content_length(raw: str | None) -> int:
 def _browser_origin_forbidden(origin: str | None) -> bool:
     """The STT endpoint is machine-to-machine; browsers must not drive it."""
     return origin is not None
+
+
+def _env_port(name: str, default: int) -> int:
+    raw = os.environ.get(name)
+    if raw is None or not raw.strip():
+        return default
+    try:
+        value = int(raw)
+    except ValueError as exc:
+        raise ValueError(f"{name} must be an integer") from exc
+    if not 1 <= value <= 65535:
+        raise ValueError(f"{name} must be between 1 and 65535")
+    return value
+
+
+def _shutdown_on_parent_stdin_eof(server: HTTPServer, stream: Any) -> None:
+    """Stop a supervised worker when the parent closes its stdin pipe."""
+    try:
+        stream.read()
+    finally:
+        server.shutdown()
 
 
 def get_whisper_engine(model_name: str = "base"):
@@ -299,6 +321,7 @@ def run_stt_server(
     host: str = "127.0.0.1",
     port: int = 8000,
     model: str = "base",
+    parent_stdin_lifecycle: bool = False,
 ) -> None:
     global _SERVER_MODEL_NAME
     host = _validate_loopback_host(host)
@@ -311,6 +334,13 @@ def run_stt_server(
     get_whisper_engine(model)
 
     server = HTTPServer((host, int(port)), LocalSTTRequestHandler)
+    if parent_stdin_lifecycle:
+        threading.Thread(
+            target=_shutdown_on_parent_stdin_eof,
+            args=(server, sys.stdin.buffer),
+            name="kitt-stt-parent-lifecycle",
+            daemon=True,
+        ).start()
     print(
         f"[STT] Local STT server listening on "
         f"http://{host}:{port}/v1/audio/transcriptions (100% local)",
@@ -328,24 +358,37 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="K.I.T.T. 100% Local STT Server")
     parser.add_argument(
         "--host",
-        default="127.0.0.1",
-        help="Loopback bind host only (default: 127.0.0.1)",
+        default=os.environ.get("KITT_STT_HOST", "127.0.0.1"),
+        help="Loopback bind host only (default: KITT_STT_HOST or 127.0.0.1)",
     )
     parser.add_argument(
         "--port",
         type=int,
-        default=8000,
-        help="Bind port (default: 8000)",
+        default=_env_port("KITT_STT_PORT", 8000),
+        help="Bind port (default: KITT_STT_PORT or 8000)",
     )
     parser.add_argument(
         "--model",
-        default=os.environ.get("WHISPER_MODEL", "base"),
-        help="Whisper model loaded once at startup (tiny, base, small, medium)",
+        default=os.environ.get(
+            "KITT_WHISPER_MODEL",
+            os.environ.get("WHISPER_MODEL", "base"),
+        ),
+        help="Whisper model loaded once at startup (default: KITT_WHISPER_MODEL or base)",
+    )
+    parser.add_argument(
+        "--parent-stdin-lifecycle",
+        action="store_true",
+        help="Exit when the supervising parent closes stdin",
     )
     args = parser.parse_args()
 
     try:
-        run_stt_server(host=args.host, port=args.port, model=args.model)
+        run_stt_server(
+            host=args.host,
+            port=args.port,
+            model=args.model,
+            parent_stdin_lifecycle=args.parent_stdin_lifecycle,
+        )
     except ValueError as exc:
         parser.error(str(exc))
     return 0

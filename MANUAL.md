@@ -34,10 +34,10 @@ sudo apt-get update && sudo apt-get install -y ffmpeg
 # 2. Criar ambiente virtual Python e instalar
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -e .
+pip install -e ".[stt]"
 
-# 3. (Opcional) Instalar suporte completo ao modelo Whisper
-pip install openai-whisper soundfile
+# O extra `stt` instala faster-whisper. O backend openai-whisper continua
+# suportado como alternativa quando instalado manualmente.
 ```
 
 ### 🍏 B. macOS

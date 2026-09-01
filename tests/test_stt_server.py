@@ -1,10 +1,13 @@
+import io
 import unittest
 
 import kitt_workers.stt_server as stt_server
 from kitt_workers.stt_server import (
     _MAX_REQUEST_BYTES,
     _browser_origin_forbidden,
+    _env_port,
     _parse_multipart,
+    _shutdown_on_parent_stdin_eof,
     _validate_loopback_host,
     _validated_content_length,
     transcribe_audio_file,
@@ -65,6 +68,32 @@ class TestSttServer(unittest.TestCase):
         self.assertTrue(_browser_origin_forbidden("http://localhost:3000"))
         self.assertTrue(_browser_origin_forbidden("https://evil.example"))
         self.assertTrue(_browser_origin_forbidden("null"))
+
+    def test_parent_stdin_eof_stops_supervised_server(self):
+        class FakeServer:
+            def __init__(self):
+                self.shutdown_calls = 0
+
+            def shutdown(self):
+                self.shutdown_calls += 1
+
+        server = FakeServer()
+        _shutdown_on_parent_stdin_eof(server, io.BytesIO(b""))
+        self.assertEqual(server.shutdown_calls, 1)
+
+    def test_env_port_parser(self):
+        original = stt_server.os.environ.get("KITT_TEST_STT_PORT")
+        try:
+            stt_server.os.environ["KITT_TEST_STT_PORT"] = "8123"
+            self.assertEqual(_env_port("KITT_TEST_STT_PORT", 8000), 8123)
+            stt_server.os.environ["KITT_TEST_STT_PORT"] = "invalid"
+            with self.assertRaises(ValueError):
+                _env_port("KITT_TEST_STT_PORT", 8000)
+        finally:
+            if original is None:
+                stt_server.os.environ.pop("KITT_TEST_STT_PORT", None)
+            else:
+                stt_server.os.environ["KITT_TEST_STT_PORT"] = original
 
     def test_engine_readiness_requires_loaded_real_engine(self):
         original_instance = stt_server._WHISPER_MODEL_INSTANCE
