@@ -145,13 +145,45 @@ def transcribe_audio_file(
     if engine is None:
         return ""
 
+    initial_prompt = (
+        "KITT, assistente de voz. Ei KITT, olá KITT, computador."
+        if (language or "pt").startswith("pt")
+        else "KITT, voice assistant. Hey KITT, hello KITT, computer."
+    )
+
     if _ENGINE_NAME.startswith("faster-whisper"):
-        segments, _ = engine.transcribe(audio_path, language=language, beam_size=5)
-        return " ".join(seg.text for seg in segments).strip()
+        try:
+            segments, _ = engine.transcribe(
+                audio_path,
+                language=language,
+                beam_size=5,
+                vad_filter=True,
+                condition_on_previous_text=False,
+                initial_prompt=initial_prompt,
+                no_speech_threshold=0.6,
+            )
+            text = " ".join(seg.text for seg in segments).strip()
+        except Exception:
+            segments, _ = engine.transcribe(audio_path, language=language, beam_size=5)
+            text = " ".join(seg.text for seg in segments).strip()
+
+        cleaned = text.replace(".", "").replace("…", "").replace("-", "").strip()
+        if not cleaned or cleaned.lower() in ("[música]", "[som]", "(silêncio)", "(música)"):
+            return ""
+        return text
 
     if _ENGINE_NAME.startswith("whisper"):
-        result = engine.transcribe(audio_path, language=language)
-        return str(result.get("text", "")).strip()
+        result = engine.transcribe(
+            audio_path,
+            language=language,
+            initial_prompt=initial_prompt,
+            condition_on_previous_text=False,
+        )
+        text = str(result.get("text", "")).strip()
+        cleaned = text.replace(".", "").replace("…", "").replace("-", "").strip()
+        if not cleaned:
+            return ""
+        return text
 
     return ""
 
