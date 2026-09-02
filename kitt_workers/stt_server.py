@@ -14,8 +14,9 @@ import os
 import sys
 import tempfile
 import threading
+import time
 from http import HTTPStatus
-from http.server import BaseHTTPRequestHandler, HTTPServer
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any
 
 _WHISPER_MODEL_INSTANCE: Any = None
@@ -24,6 +25,23 @@ _SERVER_MODEL_NAME: str | None = None
 
 _MAX_REQUEST_BYTES = 26 * 1024 * 1024
 _CLIENT_READ_TIMEOUT_SECONDS = 15.0
+
+_TRANSCRIPTION_LOCK = threading.Lock()
+_REQUESTS_TOTAL = 0
+_FAILURES_TOTAL = 0
+_LAST_TRANSCRIPTION_MS = 0
+
+# Tuning options configured at startup
+_STT_DEVICE = "auto"
+_STT_COMPUTE_TYPE = "default"
+_STT_CPU_THREADS = 0
+_STT_NUM_WORKERS = 1
+_STT_BEAM_SIZE = 2
+_STT_LOCAL_FILES_ONLY = True
+_STT_VAD_FILTER = True
+_STT_VAD_MIN_SILENCE_MS = 300
+_STT_VAD_SPEECH_PAD_MS = 220
+_STT_NO_SPEECH_THRESHOLD = 0.6
 
 
 def _validate_loopback_host(host: str) -> str:
@@ -75,7 +93,7 @@ def _env_port(name: str, default: int) -> int:
     return value
 
 
-def _shutdown_on_parent_stdin_eof(server: HTTPServer, stream: Any) -> None:
+def _shutdown_on_parent_stdin_eof(server: ThreadingHTTPServer, stream: Any) -> None:
     """Stop a supervised worker when the parent closes its stdin pipe."""
     try:
         stream.read()
@@ -83,7 +101,14 @@ def _shutdown_on_parent_stdin_eof(server: HTTPServer, stream: Any) -> None:
         server.shutdown()
 
 
-def get_whisper_engine(model_name: str):
+def get_whisper_engine(
+    model_name: str,
+    device: str = "auto",
+    compute_type: str = "default",
+    cpu_threads: int = 0,
+    num_workers: int = 1,
+    local_files_only: bool = True,
+):
     global _WHISPER_MODEL_INSTANCE, _ENGINE_NAME
     if _WHISPER_MODEL_INSTANCE is not None:
         return _WHISPER_MODEL_INSTANCE
@@ -91,12 +116,25 @@ def get_whisper_engine(model_name: str):
     try:
         from faster_whisper import WhisperModel
 
-        print(f"[STT] Loading local faster-whisper model: '{model_name}'...", flush=True)
-        _WHISPER_MODEL_INSTANCE = WhisperModel(
-            model_name,
-            device="auto",
-            compute_type="default",
-        )
+        print(f"[STT] Loading local faster-whisper model: '{model_name}' (device={device}, compute_type={compute_type}, cpu_threads={cpu_threads}, num_workers={num_workers}, local_files_only={local_files_only})...", flush=True)
+        kwargs: dict[str, Any] = {
+            "device": device,
+            "compute_type": compute_type,
+            "num_workers": max(1, num_workers),
+        }
+        if cpu_threads > 0:
+            kwargs["cpu_threads"] = cpu_threads
+        if local_files_only:
+            kwargs["local_files_only"] = True
+
+        try:
+            _WHISPER_MODEL_INSTANCE = WhisperModel(model_name, **kwargs)
+        except Exception as exc:
+            if local_files_only and ("not found" in str(exc).lower() or "local_files_only" in str(exc).lower()):
+                print(f"[STT] Local file lookup for model '{model_name}' failed with local_files_only=True: {exc}", flush=True)
+                raise
+            _WHISPER_MODEL_INSTANCE = WhisperModel(model_name, device=device, compute_type=compute_type)
+
         _ENGINE_NAME = f"faster-whisper ({model_name})"
         print("[STT] Local faster-whisper model ready.", flush=True)
         return _WHISPER_MODEL_INSTANCE
@@ -107,7 +145,7 @@ def get_whisper_engine(model_name: str):
         import whisper
 
         print(f"[STT] Loading local openai-whisper model: '{model_name}'...", flush=True)
-        _WHISPER_MODEL_INSTANCE = whisper.load_model(model_name)
+        _WHISPER_MODEL_INSTANCE = whisper.load_model(model_name, device=device if device != "auto" else None)
         _ENGINE_NAME = f"whisper ({model_name})"
         print("[STT] Local whisper model ready.", flush=True)
         return _WHISPER_MODEL_INSTANCE
@@ -146,47 +184,109 @@ def transcribe_audio_file(
     model_name: str,
     language: str | None = None,
     initial_prompt: str | None = None,
-) -> str:
+    beam_size: int | None = None,
+    vad_filter: bool | None = None,
+    vad_min_silence_ms: int | None = None,
+    vad_speech_pad_ms: int | None = None,
+    no_speech_threshold: float | None = None,
+    return_metadata: bool = False,
+) -> str | dict[str, Any]:
+    global _REQUESTS_TOTAL, _FAILURES_TOTAL, _LAST_TRANSCRIPTION_MS
+    start_time = time.perf_counter()
+
     if not os.path.isfile(audio_path):
-        return ""
+        return {"text": "", "language": None, "language_probability": None, "avg_logprob": None, "duration_ms": 0} if return_metadata else ""
 
     model_name = (model_name or "").strip()
     if not model_name:
         raise ValueError("STT model must be configured explicitly")
 
-    engine = get_whisper_engine(model_name)
+    engine = get_whisper_engine(
+        model_name,
+        device=_STT_DEVICE,
+        compute_type=_STT_COMPUTE_TYPE,
+        cpu_threads=_STT_CPU_THREADS,
+        num_workers=_STT_NUM_WORKERS,
+        local_files_only=_STT_LOCAL_FILES_ONLY,
+    )
     if engine is None:
+        if return_metadata:
+            return {"text": "", "language": None, "language_probability": None, "avg_logprob": None, "duration_ms": 0}
         return ""
 
     prompt = (initial_prompt or "").strip() or None
+    b_size = beam_size if beam_size is not None else _STT_BEAM_SIZE
+    v_filter = vad_filter if vad_filter is not None else _STT_VAD_FILTER
+    v_min_silence = vad_min_silence_ms if vad_min_silence_ms is not None else _STT_VAD_MIN_SILENCE_MS
+    v_speech_pad = vad_speech_pad_ms if vad_speech_pad_ms is not None else _STT_VAD_SPEECH_PAD_MS
+    ns_thresh = no_speech_threshold if no_speech_threshold is not None else _STT_NO_SPEECH_THRESHOLD
 
-    if _ENGINE_NAME.startswith("faster-whisper"):
-        segments, _ = engine.transcribe(
-            audio_path,
-            language=language,
-            beam_size=5,
-            vad_filter=True,
-            vad_parameters={
-                "min_silence_duration_ms": 400,
-                "speech_pad_ms": 200,
-            },
-            condition_on_previous_text=False,
-            initial_prompt=prompt,
-            no_speech_threshold=0.6,
-        )
-        return _clean_transcript(" ".join(seg.text for seg in segments))
+    _REQUESTS_TOTAL += 1
+    try:
+        if _ENGINE_NAME.startswith("faster-whisper"):
+            segments, info = engine.transcribe(
+                audio_path,
+                language=language,
+                beam_size=b_size,
+                vad_filter=v_filter,
+                vad_parameters={
+                    "min_silence_duration_ms": v_min_silence,
+                    "speech_pad_ms": v_speech_pad,
+                },
+                condition_on_previous_text=False,
+                initial_prompt=prompt,
+                no_speech_threshold=ns_thresh,
+            )
+            segments_list = list(segments)
+            clean_text = _clean_transcript(" ".join(seg.text for seg in segments_list))
+            duration_ms = int((time.perf_counter() - start_time) * 1000)
+            _LAST_TRANSCRIPTION_MS = duration_ms
 
-    if _ENGINE_NAME.startswith("whisper"):
-        kwargs = {
-            "language": language,
-            "condition_on_previous_text": False,
-        }
-        if prompt:
-            kwargs["initial_prompt"] = prompt
-        result = engine.transcribe(audio_path, **kwargs)
-        return _clean_transcript(str(result.get("text", "")))
+            detected_lang = getattr(info, "language", None)
+            lang_prob = getattr(info, "language_probability", None)
+            avg_logprob = None
+            if segments_list:
+                logprobs = [getattr(s, "avg_logprob", None) for s in segments_list if getattr(s, "avg_logprob", None) is not None]
+                if logprobs:
+                    avg_logprob = sum(logprobs) / len(logprobs)
 
-    return ""
+            if return_metadata:
+                return {
+                    "text": clean_text,
+                    "language": detected_lang,
+                    "language_probability": lang_prob,
+                    "avg_logprob": avg_logprob,
+                    "duration_ms": duration_ms,
+                }
+            return clean_text
+
+        if _ENGINE_NAME.startswith("whisper"):
+            kwargs = {
+                "language": language,
+                "condition_on_previous_text": False,
+            }
+            if prompt:
+                kwargs["initial_prompt"] = prompt
+            result = engine.transcribe(audio_path, **kwargs)
+            clean_text = _clean_transcript(str(result.get("text", "")))
+            duration_ms = int((time.perf_counter() - start_time) * 1000)
+            _LAST_TRANSCRIPTION_MS = duration_ms
+
+            if return_metadata:
+                return {
+                    "text": clean_text,
+                    "language": result.get("language"),
+                    "language_probability": None,
+                    "avg_logprob": None,
+                    "duration_ms": duration_ms,
+                }
+            return clean_text
+
+    except Exception:
+        _FAILURES_TOTAL += 1
+        raise
+
+    return {"text": "", "language": None, "language_probability": None, "avg_logprob": None, "duration_ms": 0} if return_metadata else ""
 
 
 def _parse_multipart(
@@ -239,15 +339,21 @@ class LocalSTTRequestHandler(BaseHTTPRequestHandler):
     def log_message(self, format: str, *args: Any) -> None:
         pass
 
-    def _send_json(self, status: int, data: dict) -> None:
+    def _send_json(self, status: int, data: dict, headers: dict[str, str] | None = None) -> None:
         body = json.dumps(data, separators=(",", ":")).encode("utf-8")
-        self.send_response(status)
-        self.send_header("Content-Type", "application/json; charset=utf-8")
-        self.send_header("Content-Length", str(len(body)))
-        self.send_header("Cache-Control", "no-store")
-        self.send_header("X-Content-Type-Options", "nosniff")
-        self.end_headers()
-        self.wfile.write(body)
+        try:
+            self.send_response(status)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Content-Length", str(len(body)))
+            self.send_header("Cache-Control", "no-store")
+            self.send_header("X-Content-Type-Options", "nosniff")
+            if headers:
+                for k, v in headers.items():
+                    self.send_header(k, v)
+            self.end_headers()
+            self.wfile.write(body)
+        except (BrokenPipeError, ConnectionResetError):
+            pass
 
     def do_GET(self) -> None:
         if self.path in ("/", "/health", "/v1/health"):
@@ -257,9 +363,13 @@ class LocalSTTRequestHandler(BaseHTTPRequestHandler):
                 {
                     "status": "ok" if ready else "degraded",
                     "ready": ready,
+                    "busy": _TRANSCRIPTION_LOCK.locked(),
                     "service": "kitt-local-stt",
                     "engine": _ENGINE_NAME,
                     "model": _SERVER_MODEL_NAME,
+                    "requests_total": _REQUESTS_TOTAL,
+                    "failures_total": _FAILURES_TOTAL,
+                    "last_transcription_ms": _LAST_TRANSCRIPTION_MS,
                 },
             )
             return
@@ -352,6 +462,16 @@ class LocalSTTRequestHandler(BaseHTTPRequestHandler):
             )
             return
 
+        # Attempt to acquire transcription lock; reject with 429 if busy
+        acquired = _TRANSCRIPTION_LOCK.acquire(blocking=True, timeout=0.1)
+        if not acquired:
+            self._send_json(
+                HTTPStatus.TOO_MANY_REQUESTS,
+                {"error": "STT engine is busy processing another transcription"},
+                headers={"Retry-After": "1"},
+            )
+            return
+
         with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
             tmp_path = tmp.name
             tmp.write(file_data)
@@ -359,13 +479,17 @@ class LocalSTTRequestHandler(BaseHTTPRequestHandler):
         try:
             if not _SERVER_MODEL_NAME:
                 raise RuntimeError("STT server model is not configured")
-            transcript = transcribe_audio_file(
+            result = transcribe_audio_file(
                 tmp_path,
                 model_name=_SERVER_MODEL_NAME,
                 language=language,
                 initial_prompt=prompt,
+                return_metadata=True,
             )
-            self._send_json(HTTPStatus.OK, {"text": transcript})
+            if isinstance(result, dict):
+                self._send_json(HTTPStatus.OK, result)
+            else:
+                self._send_json(HTTPStatus.OK, {"text": result})
         except Exception as exc:
             print(f"[STT] transcription failed: {exc}", file=sys.stderr, flush=True)
             self._send_json(
@@ -373,6 +497,7 @@ class LocalSTTRequestHandler(BaseHTTPRequestHandler):
                 {"error": "transcription failed"},
             )
         finally:
+            _TRANSCRIPTION_LOCK.release()
             try:
                 os.unlink(tmp_path)
             except OSError:
@@ -384,8 +509,18 @@ def run_stt_server(
     host: str = "127.0.0.1",
     port: int = 8000,
     parent_stdin_lifecycle: bool = False,
+    device: str = "auto",
+    compute_type: str = "default",
+    cpu_threads: int = 0,
+    num_workers: int = 1,
+    beam_size: int = 2,
+    local_files_only: bool = True,
+    vad_filter: bool = True,
+    vad_min_silence_ms: int = 300,
+    vad_speech_pad_ms: int = 220,
+    no_speech_threshold: float = 0.6,
 ) -> None:
-    global _SERVER_MODEL_NAME
+    global _SERVER_MODEL_NAME, _STT_DEVICE, _STT_COMPUTE_TYPE, _STT_CPU_THREADS, _STT_NUM_WORKERS, _STT_BEAM_SIZE, _STT_LOCAL_FILES_ONLY, _STT_VAD_FILTER, _STT_VAD_MIN_SILENCE_MS, _STT_VAD_SPEECH_PAD_MS, _STT_NO_SPEECH_THRESHOLD
     host = _validate_loopback_host(host)
     if not 1 <= int(port) <= 65535:
         raise ValueError("STT port must be between 1 and 65535")
@@ -393,9 +528,27 @@ def run_stt_server(
     if not model:
         raise ValueError("STT model cannot be empty")
     _SERVER_MODEL_NAME = model
-    get_whisper_engine(model)
+    _STT_DEVICE = device
+    _STT_COMPUTE_TYPE = compute_type
+    _STT_CPU_THREADS = cpu_threads
+    _STT_NUM_WORKERS = num_workers
+    _STT_BEAM_SIZE = beam_size
+    _STT_LOCAL_FILES_ONLY = local_files_only
+    _STT_VAD_FILTER = vad_filter
+    _STT_VAD_MIN_SILENCE_MS = vad_min_silence_ms
+    _STT_VAD_SPEECH_PAD_MS = vad_speech_pad_ms
+    _STT_NO_SPEECH_THRESHOLD = no_speech_threshold
 
-    server = HTTPServer((host, int(port)), LocalSTTRequestHandler)
+    get_whisper_engine(
+        model,
+        device=device,
+        compute_type=compute_type,
+        cpu_threads=cpu_threads,
+        num_workers=num_workers,
+        local_files_only=local_files_only,
+    )
+
+    server = ThreadingHTTPServer((host, int(port)), LocalSTTRequestHandler)
     if parent_stdin_lifecycle:
         threading.Thread(
             target=_shutdown_on_parent_stdin_eof,
@@ -435,6 +588,78 @@ def main() -> int:
         help="Required model name/path (or set KITT_WHISPER_MODEL / WHISPER_MODEL)",
     )
     parser.add_argument(
+        "--device",
+        default="auto",
+        choices=["auto", "cpu", "cuda"],
+        help="Device to run inference on (auto, cpu, cuda)",
+    )
+    parser.add_argument(
+        "--compute-type",
+        default="default",
+        choices=["default", "int8", "float16", "int8_float16", "float32"],
+        help="Compute type for model weights and inference",
+    )
+    parser.add_argument(
+        "--cpu-threads",
+        type=int,
+        default=0,
+        help="Number of CPU threads for inference (0 = auto)",
+    )
+    parser.add_argument(
+        "--num-workers",
+        type=int,
+        default=1,
+        help="Number of worker threads in engine",
+    )
+    parser.add_argument(
+        "--beam-size",
+        type=int,
+        default=2,
+        help="Beam size for decoding (default: 2)",
+    )
+    parser.add_argument(
+        "--local-files-only",
+        action="store_true",
+        default=True,
+        help="Do not attempt remote downloads on wake (default: True)",
+    )
+    parser.add_argument(
+        "--allow-download",
+        action="store_false",
+        dest="local_files_only",
+        help="Allow remote download if model is not present locally",
+    )
+    parser.add_argument(
+        "--vad-filter",
+        action="store_true",
+        default=True,
+        help="Enable VAD filtering",
+    )
+    parser.add_argument(
+        "--no-vad-filter",
+        action="store_false",
+        dest="vad_filter",
+        help="Disable VAD filtering",
+    )
+    parser.add_argument(
+        "--vad-min-silence-ms",
+        type=int,
+        default=300,
+        help="VAD minimum silence duration in ms",
+    )
+    parser.add_argument(
+        "--vad-speech-pad-ms",
+        type=int,
+        default=220,
+        help="VAD speech padding in ms",
+    )
+    parser.add_argument(
+        "--no-speech-threshold",
+        type=float,
+        default=0.6,
+        help="Threshold to consider a segment silent",
+    )
+    parser.add_argument(
         "--parent-stdin-lifecycle",
         action="store_true",
         help="Exit when the supervising parent closes stdin",
@@ -451,6 +676,16 @@ def main() -> int:
             host=args.host,
             port=args.port,
             parent_stdin_lifecycle=args.parent_stdin_lifecycle,
+            device=args.device,
+            compute_type=args.compute_type,
+            cpu_threads=args.cpu_threads,
+            num_workers=args.num_workers,
+            beam_size=args.beam_size,
+            local_files_only=args.local_files_only,
+            vad_filter=args.vad_filter,
+            vad_min_silence_ms=args.vad_min_silence_ms,
+            vad_speech_pad_ms=args.vad_speech_pad_ms,
+            no_speech_threshold=args.no_speech_threshold,
         )
     except ValueError as exc:
         parser.error(str(exc))

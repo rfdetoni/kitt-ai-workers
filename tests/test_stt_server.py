@@ -147,6 +147,43 @@ class TestSttServer(unittest.TestCase):
         finally:
             stt_server._SERVER_MODEL_NAME = original
 
+    def test_health_endpoint_reports_busy_and_stats(self):
+        class FakeHandler(stt_server.LocalSTTRequestHandler):
+            def __init__(self):
+                self.sent_status = None
+                self.sent_data = None
+
+            def _send_json(self, status, data, headers=None):
+                self.sent_status = status
+                self.sent_data = data
+
+        handler = FakeHandler()
+        handler.path = "/health"
+        handler.do_GET()
+        self.assertEqual(handler.sent_status, 200)
+        self.assertIn("busy", handler.sent_data)
+        self.assertIn("requests_total", handler.sent_data)
+        self.assertIn("last_transcription_ms", handler.sent_data)
+        self.assertFalse(handler.sent_data["busy"])
+
+        # Test busy state when lock is held
+        with stt_server._TRANSCRIPTION_LOCK:
+            busy_handler = FakeHandler()
+            busy_handler.path = "/health"
+            busy_handler.do_GET()
+            self.assertTrue(busy_handler.sent_data["busy"])
+
+    def test_transcribe_returns_rich_metadata_dict(self):
+        result = transcribe_audio_file(
+            "/nonexistent/file.wav",
+            "test-model",
+            return_metadata=True,
+        )
+        self.assertIsInstance(result, dict)
+        self.assertIn("text", result)
+        self.assertIn("language", result)
+        self.assertIn("duration_ms", result)
+
 
 if __name__ == "__main__":
     unittest.main()
