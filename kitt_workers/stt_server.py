@@ -20,7 +20,7 @@ from typing import Any
 
 _WHISPER_MODEL_INSTANCE: Any = None
 _ENGINE_NAME: str = "none"
-_SERVER_MODEL_NAME: str = "base"
+_SERVER_MODEL_NAME: str | None = None
 
 _MAX_REQUEST_BYTES = 26 * 1024 * 1024
 _CLIENT_READ_TIMEOUT_SECONDS = 15.0
@@ -83,7 +83,7 @@ def _shutdown_on_parent_stdin_eof(server: HTTPServer, stream: Any) -> None:
         server.shutdown()
 
 
-def get_whisper_engine(model_name: str = "base"):
+def get_whisper_engine(model_name: str):
     global _WHISPER_MODEL_INSTANCE, _ENGINE_NAME
     if _WHISPER_MODEL_INSTANCE is not None:
         return _WHISPER_MODEL_INSTANCE
@@ -133,57 +133,58 @@ def _engine_ready() -> bool:
     )
 
 
+def _clean_transcript(text: str) -> str:
+    text = text.strip()
+    cleaned = text.replace(".", "").replace("…", "").replace("-", "").strip().lower()
+    if not cleaned or cleaned in ("[música]", "[som]", "(silêncio)", "(música)"):
+        return ""
+    return text
+
+
 def transcribe_audio_file(
     audio_path: str,
-    model_name: str = "base",
+    model_name: str,
     language: str | None = None,
+    initial_prompt: str | None = None,
 ) -> str:
     if not os.path.isfile(audio_path):
         return ""
+
+    model_name = (model_name or "").strip()
+    if not model_name:
+        raise ValueError("STT model must be configured explicitly")
 
     engine = get_whisper_engine(model_name)
     if engine is None:
         return ""
 
-    initial_prompt = (
-        "KITT, assistente de voz. Ei KITT, olá KITT, computador."
-        if (language or "pt").startswith("pt")
-        else "KITT, voice assistant. Hey KITT, hello KITT, computer."
-    )
+    prompt = (initial_prompt or "").strip() or None
 
     if _ENGINE_NAME.startswith("faster-whisper"):
-        try:
-            segments, _ = engine.transcribe(
-                audio_path,
-                language=language,
-                beam_size=5,
-                vad_filter=True,
-                condition_on_previous_text=False,
-                initial_prompt=initial_prompt,
-                no_speech_threshold=0.6,
-            )
-            text = " ".join(seg.text for seg in segments).strip()
-        except Exception:
-            segments, _ = engine.transcribe(audio_path, language=language, beam_size=5)
-            text = " ".join(seg.text for seg in segments).strip()
-
-        cleaned = text.replace(".", "").replace("…", "").replace("-", "").strip()
-        if not cleaned or cleaned.lower() in ("[música]", "[som]", "(silêncio)", "(música)"):
-            return ""
-        return text
-
-    if _ENGINE_NAME.startswith("whisper"):
-        result = engine.transcribe(
+        segments, _ = engine.transcribe(
             audio_path,
             language=language,
-            initial_prompt=initial_prompt,
+            beam_size=5,
+            vad_filter=True,
+            vad_parameters={
+                "min_silence_duration_ms": 400,
+                "speech_pad_ms": 200,
+            },
             condition_on_previous_text=False,
+            initial_prompt=prompt,
+            no_speech_threshold=0.6,
         )
-        text = str(result.get("text", "")).strip()
-        cleaned = text.replace(".", "").replace("…", "").replace("-", "").strip()
-        if not cleaned:
-            return ""
-        return text
+        return _clean_transcript(" ".join(seg.text for seg in segments))
+
+    if _ENGINE_NAME.startswith("whisper"):
+        kwargs = {
+            "language": language,
+            "condition_on_previous_text": False,
+        }
+        if prompt:
+            kwargs["initial_prompt"] = prompt
+        result = engine.transcribe(audio_path, **kwargs)
+        return _clean_transcript(str(result.get("text", "")))
 
     return ""
 
@@ -191,7 +192,7 @@ def transcribe_audio_file(
 def _parse_multipart(
     content_type_header: str,
     body: bytes,
-) -> tuple[bytes | None, str | None, str | None]:
+) -> tuple[bytes | None, str | None, str | None, str | None]:
     """Parse multipart/form-data payload without the deprecated cgi module."""
     raw_message = (
         b"Content-Type: "
@@ -204,6 +205,7 @@ def _parse_multipart(
     file_bytes: bytes | None = None
     language: str | None = None
     model: str | None = None
+    prompt: str | None = None
 
     if msg.is_multipart():
         for part in msg.get_payload():
@@ -218,8 +220,12 @@ def _parse_multipart(
                 val = part.get_payload(decode=True)
                 if val:
                     model = val.decode("utf-8", errors="ignore").strip()[:128]
+            elif 'name="prompt"' in cd:
+                val = part.get_payload(decode=True)
+                if val:
+                    prompt = val.decode("utf-8", errors="ignore").strip()[:512]
 
-    return file_bytes, language, model
+    return file_bytes, language, model, prompt
 
 
 class LocalSTTRequestHandler(BaseHTTPRequestHandler):
@@ -258,18 +264,20 @@ class LocalSTTRequestHandler(BaseHTTPRequestHandler):
             )
             return
         if self.path in ("/v1/models", "/models"):
+            data = []
+            if _SERVER_MODEL_NAME:
+                data.append(
+                    {
+                        "id": _SERVER_MODEL_NAME,
+                        "object": "model",
+                        "owned_by": "local-whisper",
+                    }
+                )
             self._send_json(
                 HTTPStatus.OK,
                 {
                     "object": "list",
-                    "data": [
-                        {"id": "whisper-1", "object": "model", "owned_by": "openai"},
-                        {"id": "base", "object": "model", "owned_by": "local-whisper"},
-                        {"id": "tiny", "object": "model", "owned_by": "local-whisper"},
-                        {"id": "small", "object": "model", "owned_by": "local-whisper"},
-                        {"id": "medium", "object": "model", "owned_by": "local-whisper"},
-                        {"id": "large-v3", "object": "model", "owned_by": "local-whisper"},
-                    ],
+                    "data": data,
                 },
             )
             return
@@ -333,7 +341,10 @@ class LocalSTTRequestHandler(BaseHTTPRequestHandler):
             )
             return
 
-        file_data, language, _requested_model = _parse_multipart(content_type, body)
+        file_data, language, _requested_model, prompt = _parse_multipart(
+            content_type,
+            body,
+        )
         if not file_data:
             self._send_json(
                 HTTPStatus.BAD_REQUEST,
@@ -346,10 +357,13 @@ class LocalSTTRequestHandler(BaseHTTPRequestHandler):
             tmp.write(file_data)
 
         try:
+            if not _SERVER_MODEL_NAME:
+                raise RuntimeError("STT server model is not configured")
             transcript = transcribe_audio_file(
                 tmp_path,
                 model_name=_SERVER_MODEL_NAME,
                 language=language,
+                initial_prompt=prompt,
             )
             self._send_json(HTTPStatus.OK, {"text": transcript})
         except Exception as exc:
@@ -366,9 +380,9 @@ class LocalSTTRequestHandler(BaseHTTPRequestHandler):
 
 
 def run_stt_server(
+    model: str,
     host: str = "127.0.0.1",
     port: int = 8000,
-    model: str = "base",
     parent_stdin_lifecycle: bool = False,
 ) -> None:
     global _SERVER_MODEL_NAME
@@ -417,11 +431,8 @@ def main() -> int:
     )
     parser.add_argument(
         "--model",
-        default=os.environ.get(
-            "KITT_WHISPER_MODEL",
-            os.environ.get("WHISPER_MODEL", "base"),
-        ),
-        help="Whisper model loaded once at startup (default: KITT_WHISPER_MODEL or base)",
+        default=os.environ.get("KITT_WHISPER_MODEL") or os.environ.get("WHISPER_MODEL"),
+        help="Required model name/path (or set KITT_WHISPER_MODEL / WHISPER_MODEL)",
     )
     parser.add_argument(
         "--parent-stdin-lifecycle",
@@ -429,12 +440,16 @@ def main() -> int:
         help="Exit when the supervising parent closes stdin",
     )
     args = parser.parse_args()
+    if not args.model or not args.model.strip():
+        parser.error(
+            "--model is required unless KITT_WHISPER_MODEL or WHISPER_MODEL is set"
+        )
 
     try:
         run_stt_server(
+            model=args.model,
             host=args.host,
             port=args.port,
-            model=args.model,
             parent_stdin_lifecycle=args.parent_stdin_lifecycle,
         )
     except ValueError as exc:

@@ -26,19 +26,23 @@ class TestSttServer(unittest.TestCase):
             f'Content-Disposition: form-data; name="language"\r\n\r\n'
             f"pt\r\n"
             f"--{boundary}\r\n"
+            f'Content-Disposition: form-data; name="prompt"\r\n\r\n'
+            f"KITT. Ei KITT.\r\n"
+            f"--{boundary}\r\n"
             f'Content-Disposition: form-data; name="file"; filename="audio.wav"\r\n'
             f"Content-Type: audio/wav\r\n\r\n"
             f"RIFFmockwavcontent\r\n"
             f"--{boundary}--\r\n"
         ).encode("utf-8")
 
-        file_bytes, language, model = _parse_multipart(content_type, body)
+        file_bytes, language, model, prompt = _parse_multipart(content_type, body)
         self.assertEqual(file_bytes, b"RIFFmockwavcontent")
         self.assertEqual(language, "pt")
         self.assertEqual(model, "base")
+        self.assertEqual(prompt, "KITT. Ei KITT.")
 
     def test_mock_transcribe_returns_empty_when_file_is_missing(self):
-        result = transcribe_audio_file("/nonexistent/file.wav")
+        result = transcribe_audio_file("/nonexistent/file.wav", "configured-model")
         self.assertIsInstance(result, str)
         self.assertEqual(result, "")
 
@@ -113,7 +117,7 @@ class TestSttServer(unittest.TestCase):
             stt_server._WHISPER_MODEL_INSTANCE = original_instance
             stt_server._ENGINE_NAME = original_name
 
-    def test_models_endpoint_returns_whisper_models(self):
+    def test_models_endpoint_reports_only_loaded_model(self):
         class FakeHandler(stt_server.LocalSTTRequestHandler):
             def __init__(self):
                 self.sent_status = None
@@ -123,14 +127,25 @@ class TestSttServer(unittest.TestCase):
                 self.sent_status = status
                 self.sent_data = data
 
-        handler = FakeHandler()
-        handler.path = "/v1/models"
-        handler.do_GET()
-        self.assertEqual(handler.sent_status, 200)
-        self.assertIn("data", handler.sent_data)
-        model_ids = [m["id"] for m in handler.sent_data["data"]]
-        self.assertIn("whisper-1", model_ids)
-        self.assertIn("base", model_ids)
+        original = stt_server._SERVER_MODEL_NAME
+        try:
+            stt_server._SERVER_MODEL_NAME = "configured-model"
+            handler = FakeHandler()
+            handler.path = "/v1/models"
+            handler.do_GET()
+            self.assertEqual(handler.sent_status, 200)
+            self.assertEqual(
+                [model["id"] for model in handler.sent_data["data"]],
+                ["configured-model"],
+            )
+
+            stt_server._SERVER_MODEL_NAME = None
+            empty = FakeHandler()
+            empty.path = "/v1/models"
+            empty.do_GET()
+            self.assertEqual(empty.sent_data["data"], [])
+        finally:
+            stt_server._SERVER_MODEL_NAME = original
 
 
 if __name__ == "__main__":
