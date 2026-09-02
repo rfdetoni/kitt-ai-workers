@@ -101,6 +101,66 @@ def _shutdown_on_parent_stdin_eof(server: ThreadingHTTPServer, stream: Any) -> N
         server.shutdown()
 
 
+def _detect_stt_device(
+    requested_device: str = "auto",
+    requested_compute: str = "default",
+) -> tuple[str, str]:
+    """Detect available hardware acceleration and compute type.
+
+    If 'auto' or 'cuda' is requested:
+    - Tests for CTranslate2 / PyTorch GPU acceleration.
+    - If functional, uses GPU acceleration ('cuda' with 'float16'/'default').
+    - If unavailable or on initialization error, gracefully falls back to 'cpu' with 'float32'.
+    """
+    req_dev = (requested_device or "auto").strip().lower()
+    req_comp = (requested_compute or "default").strip().lower()
+
+    if req_dev == "cpu":
+        return "cpu", "float32" if req_comp == "default" else req_comp
+
+    # 1. Probe CTranslate2 CUDA support
+    try:
+        import ctranslate2
+        cuda_count = ctranslate2.get_cuda_device_count()
+        if cuda_count > 0:
+            supported = ctranslate2.get_supported_compute_types("cuda")
+            compute = "float16" if ("float16" in supported and req_comp == "default") else req_comp
+            print(
+                f"[STT] GPU acceleration detected: CTranslate2 CUDA ({cuda_count} device(s), compute_type={compute})",
+                flush=True,
+            )
+            return "cuda", compute
+    except Exception as exc:
+        if req_dev == "cuda":
+            print(f"[STT] GPU check failed for CUDA ({exc}). Falling back to CPU.", flush=True)
+
+    # 2. Probe PyTorch CUDA / MPS support as secondary check
+    try:
+        import torch
+        if torch.cuda.is_available() and torch.cuda.device_count() > 0:
+            compute = "float16" if req_comp == "default" else req_comp
+            print(
+                f"[STT] GPU acceleration detected: PyTorch CUDA ({torch.cuda.device_count()} device(s), compute_type={compute})",
+                flush=True,
+            )
+            return "cuda", compute
+        if getattr(torch.backends, "mps", None) and torch.backends.mps.is_available():
+            compute = "float32" if req_comp == "default" else req_comp
+            print(f"[STT] GPU acceleration detected: Apple Silicon MPS (compute_type={compute})", flush=True)
+            return "mps", compute
+    except Exception:
+        pass
+
+    # 3. CPU fallback
+    compute = "float32" if req_comp == "default" else req_comp
+    if req_dev == "cuda":
+        print("[STT] Warning: GPU ('cuda') was requested but no functional CUDA device was found. Falling back to CPU.", flush=True)
+    else:
+        print(f"[STT] Hardware acceleration: No supported GPU found. Using CPU (device=cpu, compute_type={compute}).", flush=True)
+
+    return "cpu", compute
+
+
 def get_whisper_engine(
     model_name: str,
     device: str = "auto",
@@ -113,13 +173,21 @@ def get_whisper_engine(
     if _WHISPER_MODEL_INSTANCE is not None:
         return _WHISPER_MODEL_INSTANCE
 
+    target_device, target_compute = _detect_stt_device(device, compute_type)
+
     try:
         from faster_whisper import WhisperModel
 
-        print(f"[STT] Loading local faster-whisper model: '{model_name}' (device={device}, compute_type={compute_type}, cpu_threads={cpu_threads}, num_workers={num_workers}, local_files_only={local_files_only})...", flush=True)
+        print(
+            f"[STT] Loading local faster-whisper model: '{model_name}' "
+            f"(device={target_device}, compute_type={target_compute}, "
+            f"cpu_threads={cpu_threads}, num_workers={num_workers}, "
+            f"local_files_only={local_files_only})...",
+            flush=True,
+        )
         kwargs: dict[str, Any] = {
-            "device": device,
-            "compute_type": compute_type,
+            "device": target_device,
+            "compute_type": target_compute,
             "num_workers": max(1, num_workers),
         }
         if cpu_threads > 0:
@@ -130,13 +198,24 @@ def get_whisper_engine(
         try:
             _WHISPER_MODEL_INSTANCE = WhisperModel(model_name, **kwargs)
         except Exception as exc:
-            if local_files_only and ("not found" in str(exc).lower() or "local_files_only" in str(exc).lower()):
+            if target_device != "cpu":
+                print(
+                    f"[STT] Faster-Whisper initialization failed on '{target_device}': {exc}. "
+                    f"Retrying on CPU...",
+                    flush=True,
+                )
+                kwargs["device"] = "cpu"
+                kwargs["compute_type"] = "float32"
+                _WHISPER_MODEL_INSTANCE = WhisperModel(model_name, **kwargs)
+            elif local_files_only and ("not found" in str(exc).lower() or "local_files_only" in str(exc).lower()):
                 print(f"[STT] Local file lookup for model '{model_name}' failed with local_files_only=True: {exc}", flush=True)
                 raise
-            _WHISPER_MODEL_INSTANCE = WhisperModel(model_name, device=device, compute_type=compute_type)
+            else:
+                _WHISPER_MODEL_INSTANCE = WhisperModel(model_name, device="cpu", compute_type="float32")
 
         _ENGINE_NAME = f"faster-whisper ({model_name})"
-        print("[STT] Local faster-whisper model ready.", flush=True)
+        actual_device = getattr(getattr(_WHISPER_MODEL_INSTANCE, "model", None), "device", target_device)
+        print(f"[STT] Local faster-whisper model ready on device '{actual_device}'.", flush=True)
         return _WHISPER_MODEL_INSTANCE
     except ImportError:
         pass
@@ -144,8 +223,15 @@ def get_whisper_engine(
     try:
         import whisper
 
-        print(f"[STT] Loading local openai-whisper model: '{model_name}'...", flush=True)
-        _WHISPER_MODEL_INSTANCE = whisper.load_model(model_name, device=device if device != "auto" else None)
+        print(f"[STT] Loading local openai-whisper model: '{model_name}' (device={target_device})...", flush=True)
+        try:
+            _WHISPER_MODEL_INSTANCE = whisper.load_model(model_name, device=target_device if target_device != "auto" else None)
+        except Exception as exc:
+            if target_device != "cpu":
+                print(f"[STT] OpenAI-Whisper initialization failed on '{target_device}': {exc}. Retrying on CPU...", flush=True)
+                _WHISPER_MODEL_INSTANCE = whisper.load_model(model_name, device="cpu")
+            else:
+                raise
         _ENGINE_NAME = f"whisper ({model_name})"
         print("[STT] Local whisper model ready.", flush=True)
         return _WHISPER_MODEL_INSTANCE

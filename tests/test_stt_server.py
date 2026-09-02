@@ -184,6 +184,20 @@ class TestSttServer(unittest.TestCase):
         self.assertIn("language", result)
         self.assertIn("duration_ms", result)
 
+    def test_detect_stt_device_resolution(self):
+        dev, compute = stt_server._detect_stt_device("cpu")
+        self.assertEqual(dev, "cpu")
+        self.assertEqual(compute, "float32")
+
+        dev, compute = stt_server._detect_stt_device("cpu", "int8")
+        self.assertEqual(dev, "cpu")
+        self.assertEqual(compute, "int8")
+
+        # Auto detection should resolve to either cuda or cpu gracefully without throwing
+        dev, compute = stt_server._detect_stt_device("auto")
+        self.assertIn(dev, ("cuda", "cpu", "mps"))
+        self.assertIsInstance(compute, str)
+
 
 if __name__ == "__main__":
     unittest.main()
