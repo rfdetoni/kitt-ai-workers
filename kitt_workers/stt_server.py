@@ -259,8 +259,11 @@ def _engine_ready() -> bool:
 
 def _clean_transcript(text: str) -> str:
     text = text.strip()
-    cleaned = text.replace(".", "").replace("…", "").replace("-", "").strip().lower()
-    if not cleaned or cleaned in ("[música]", "[som]", "(silêncio)", "(música)"):
+    cleaned = text.replace(".", "").replace("…", "").replace("-", "").replace("!", "").strip().lower()
+    if not cleaned or cleaned in ("[música]", "[som]", "(silêncio)", "(música)", "[risos]", "(risos)", "(aplausos)"):
+        return ""
+    words = cleaned.split()
+    if len(words) >= 4 and len(set(words)) <= 2:
         return ""
     return text
 

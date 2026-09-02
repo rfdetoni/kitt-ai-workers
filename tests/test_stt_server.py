@@ -198,6 +198,13 @@ class TestSttServer(unittest.TestCase):
         self.assertIn(dev, ("cuda", "cpu", "mps"))
         self.assertIsInstance(compute, str)
 
+    def test_clean_transcript_filters_hallucinations(self):
+        self.assertEqual(stt_server._clean_transcript("ok ok ok ok ok ok"), "")
+        self.assertEqual(stt_server._clean_transcript("ah ah ah ah ah ah ah"), "")
+        self.assertEqual(stt_server._clean_transcript("! ! ! !"), "")
+        self.assertEqual(stt_server._clean_transcript("  [Música]  "), "")
+        self.assertEqual(stt_server._clean_transcript("Olá KITT, que horas são?"), "Olá KITT, que horas são?")
+
 
 if __name__ == "__main__":
     unittest.main()
