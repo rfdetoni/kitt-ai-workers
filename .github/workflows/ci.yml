@@ -15,3 +15,12 @@ jobs:
         with: { python-version: '3.13' }
       - run: python -m pip install -e .
       - run: python -m unittest discover tests
+      - name: Install evolution module
+        run: python -m pip install -e packages/kitt-evolution
+      - name: Test evolution module
+        run: python -m unittest discover packages/kitt-evolution/tests
+      - name: Install eval module
+        run: python -m pip install -e packages/kitt-evals
+      - name: Smoke-test eval module
+        run: >-
+          python -c "from kitt.evals.corpus import EvalRunner; from kitt.evals.retrieval import run_eval; print(EvalRunner, run_eval)"
