@@ -525,34 +525,10 @@ class LocalSTTRequestHandler(BaseHTTPRequestHandler):
             self._send_json(status, {"error": str(exc)})
             return
 
-        try:
-            body = self.rfile.read(content_length)
-        except TimeoutError:
-            self._send_json(
-                HTTPStatus.REQUEST_TIMEOUT,
-                {"error": "request body read timed out"},
-            )
-            return
-        if len(body) != content_length:
-            self._send_json(
-                HTTPStatus.BAD_REQUEST,
-                {"error": "incomplete request body"},
-            )
-            return
-
-        file_data, language, _requested_model, prompt = _parse_multipart(
-            content_type,
-            body,
-        )
-        if not file_data:
-            self._send_json(
-                HTTPStatus.BAD_REQUEST,
-                {"error": "missing 'file' field in multipart payload"},
-            )
-            return
-
-        # Attempt to acquire transcription lock; reject with 429 if busy
-        acquired = _TRANSCRIPTION_LOCK.acquire(blocking=True, timeout=0.1)
+        # Reserve the single inference slot before reading a potentially large
+        # request body. This keeps concurrent clients from buffering tens of
+        # megabytes only to be rejected after the engine is already busy.
+        acquired = _TRANSCRIPTION_LOCK.acquire(blocking=False)
         if not acquired:
             self._send_json(
                 HTTPStatus.TOO_MANY_REQUESTS,
@@ -561,11 +537,38 @@ class LocalSTTRequestHandler(BaseHTTPRequestHandler):
             )
             return
 
-        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
-            tmp_path = tmp.name
-            tmp.write(file_data)
-
+        tmp_path: str | None = None
         try:
+            try:
+                body = self.rfile.read(content_length)
+            except TimeoutError:
+                self._send_json(
+                    HTTPStatus.REQUEST_TIMEOUT,
+                    {"error": "request body read timed out"},
+                )
+                return
+            if len(body) != content_length:
+                self._send_json(
+                    HTTPStatus.BAD_REQUEST,
+                    {"error": "incomplete request body"},
+                )
+                return
+
+            file_data, language, _requested_model, prompt = _parse_multipart(
+                content_type,
+                body,
+            )
+            if not file_data:
+                self._send_json(
+                    HTTPStatus.BAD_REQUEST,
+                    {"error": "missing 'file' field in multipart payload"},
+                )
+                return
+
+            with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
+                tmp_path = tmp.name
+                tmp.write(file_data)
+
             if not _SERVER_MODEL_NAME:
                 raise RuntimeError("STT server model is not configured")
             result = transcribe_audio_file(
@@ -587,10 +590,11 @@ class LocalSTTRequestHandler(BaseHTTPRequestHandler):
             )
         finally:
             _TRANSCRIPTION_LOCK.release()
-            try:
-                os.unlink(tmp_path)
-            except OSError:
-                pass
+            if tmp_path is not None:
+                try:
+                    os.unlink(tmp_path)
+                except OSError:
+                    pass
 
 
 def run_stt_server(
