@@ -147,6 +147,52 @@ class TestSttServer(unittest.TestCase):
         finally:
             stt_server._SERVER_MODEL_NAME = original
 
+    def test_busy_engine_rejects_before_reading_request_body(self):
+        class Headers:
+            values = {
+                "Content-Type": "multipart/form-data; boundary=test",
+                "Content-Length": "1024",
+            }
+
+            def get(self, name, default=None):
+                return self.values.get(name, default)
+
+        class UnreadBody:
+            reads = 0
+
+            def read(self, _size):
+                self.reads += 1
+                raise AssertionError("busy request body must not be read")
+
+        class FakeHandler(stt_server.LocalSTTRequestHandler):
+            def __init__(self):
+                self.path = "/v1/audio/transcriptions"
+                self.headers = Headers()
+                self.rfile = UnreadBody()
+                self.sent_status = None
+                self.sent_data = None
+                self.sent_headers = None
+
+            def _send_json(self, status, data, headers=None):
+                self.sent_status = status
+                self.sent_data = data
+                self.sent_headers = headers
+
+        original_instance = stt_server._WHISPER_MODEL_INSTANCE
+        original_name = stt_server._ENGINE_NAME
+        try:
+            stt_server._WHISPER_MODEL_INSTANCE = object()
+            stt_server._ENGINE_NAME = "faster-whisper (base)"
+            handler = FakeHandler()
+            with stt_server._TRANSCRIPTION_LOCK:
+                handler.do_POST()
+            self.assertEqual(handler.sent_status, 429)
+            self.assertEqual(handler.rfile.reads, 0)
+            self.assertEqual(handler.sent_headers, {"Retry-After": "1"})
+        finally:
+            stt_server._WHISPER_MODEL_INSTANCE = original_instance
+            stt_server._ENGINE_NAME = original_name
+
     def test_health_endpoint_reports_busy_and_stats(self):
         class FakeHandler(stt_server.LocalSTTRequestHandler):
             def __init__(self):
