@@ -9,7 +9,7 @@ description = "Evaluation and benchmark suite for K.I.T.T."
 requires-python = ">=3.12"
 license = {text = "MIT"}
 dependencies = [
-  "kitt-agent-cli @ git+https://github.com/rfdetoni/kitt-agent-cli.git@488c0f7384da78670a71a43575ab7def3338a3a8",
+  "kitt-agent-cli @ git+https://github.com/rfdetoni/kitt-agent-cli.git@955dca403a283acfc2dd9e8f8ba6095c21c379f4",
 ]
 
 [tool.setuptools.packages.find]
