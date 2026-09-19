@@ -4,12 +4,12 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "kitt-evolution"
-version = "0.1.1"
+version = "0.1.2"
 description = "Offline staged self-evolution engine for K.I.T.T. skills"
 requires-python = ">=3.12"
 license = {text = "MIT"}
 dependencies = [
-  "kitt-agent-cli @ git+https://github.com/rfdetoni/kitt-agent-cli.git@f882013f6a41f30af071e0d04c6e40041219b17b",
+  "kitt-agent-cli @ git+https://github.com/rfdetoni/kitt-agent-cli.git@de299cb37e4e97a53e47c414d165857ee70a9870",
 ]
 
 [tool.setuptools.packages.find]
