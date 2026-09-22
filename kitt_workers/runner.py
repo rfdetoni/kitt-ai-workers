@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import sys
 from typing import BinaryIO
 
@@ -29,7 +30,14 @@ def _drain_oversized_line(stream: BinaryIO) -> None:
             return
 
 
-def run_stream(stdin: BinaryIO, stdout: BinaryIO) -> int:
+def run_stream(
+    stdin: BinaryIO,
+    stdout: BinaryIO,
+    *,
+    max_jobs: int = 0,
+) -> int:
+    completed_jobs = 0
+    max_jobs = max(0, int(max_jobs))
     while True:
         raw = stdin.readline(MAX_WORKER_FRAME_BYTES + 1)
         if not raw:
@@ -43,6 +51,9 @@ def run_stream(stdin: BinaryIO, stdout: BinaryIO) -> int:
                 )
             )
             stdout.flush()
+            completed_jobs += 1
+            if max_jobs and completed_jobs >= max_jobs:
+                return 0
             continue
         if not raw.strip():
             continue
@@ -60,10 +71,27 @@ def run_stream(stdin: BinaryIO, stdout: BinaryIO) -> int:
 
         stdout.write(encode_line(out))
         stdout.flush()
+        completed_jobs += 1
+        if max_jobs and completed_jobs >= max_jobs:
+            return 0
+
+
+def _configured_max_jobs() -> int:
+    raw = os.getenv("KITT_WORKER_MAX_JOBS", "0").strip()
+    if not raw:
+        return 0
+    try:
+        return max(0, int(raw))
+    except ValueError:
+        return 0
 
 
 def main() -> int:
-    return run_stream(sys.stdin.buffer, sys.stdout.buffer)
+    return run_stream(
+        sys.stdin.buffer,
+        sys.stdout.buffer,
+        max_jobs=_configured_max_jobs(),
+    )
 
 
 if __name__ == "__main__":
