@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.21 - 2026-09-27
+
+- Align Evolution/Evals with the validated kitt-agent-cli 0.74.3 Assistant/runtime pin.
+- Keep kitt-protocol 0.2.0 aligned with the shared-memory schema-v4 ecosystem snapshot.
+
 ## 0.1.20 - 2026-09-27
 
 - Align base workers with kitt-protocol 0.2.0.
