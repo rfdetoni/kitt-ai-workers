@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.20 - 2026-09-27
+
+- Align the base worker with kitt-protocol 0.2.0 while retaining protocol envelope v1.
+- Align Evolution and Evals with the Agent CLI 0.74.2 memory-integration candidate.
+- Keep the composed Python dependency graph on one immutable protocol revision.
+
 ## 0.1.17 - 2026-09-25
 
 - Pin Evolution and Evals to the final KITT Agent CLI 0.72.1 ecosystem-compatible revision.

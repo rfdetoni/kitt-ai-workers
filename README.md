@@ -74,7 +74,7 @@ Install local STT support only when required:
 python -m pip install -e '.[stt]'
 ```
 
-`kitt-evolution` is a separate Python 3.12+ package under `packages/kitt-evolution`; `kitt-evals` is also packaged separately. Version 0.1.19 aligns Evolution and Evals with `kitt-agent-cli 0.72.3`, including the retained-TUI mouse/scroll/modal hardening while preserving the durable no-timeout approval lifecycle and current Agent control-plane contracts. The root K.I.T.T. installer composes these packages with the Agent instead of vendoring them into `kitt-agent-cli`.
+`kitt-evolution` is a separate Python 3.12+ package under `packages/kitt-evolution`; `kitt-evals` is also packaged separately. Version 0.1.20 aligns Evolution and Evals with `kitt-agent-cli 0.74.2`, including the retained-TUI mouse/scroll/modal hardening while preserving the durable no-timeout approval lifecycle and current Agent control-plane contracts. The root K.I.T.T. installer composes these packages with the Agent instead of vendoring them into `kitt-agent-cli`.
 
 ---
 
@@ -196,3 +196,8 @@ Keep the base worker runtime small. Heavy dependencies should remain optional an
 ## License
 
 MIT. See [LICENSE](LICENSE).
+
+
+### Shared contract alignment
+
+Version 0.1.20 pins `kitt-protocol 0.2.0`, the additive memory-contract revision used by the current Agent and Assistant candidates. The worker wire envelope remains protocol v1; workers do not access `kitt-memory` directly.
