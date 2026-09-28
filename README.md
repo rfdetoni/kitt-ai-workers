@@ -241,3 +241,8 @@ The 0.1.25 Evolution/Evals dependency pin follows the final Agent 0.75.1 validat
 
 
 The 0.1.25 Evolution/Evals dependency pin follows Agent 0.75.1 snapshot `aee552caf0ef4fd7bd44b12a85e15e7df1febed4`, aligned with Assistant 0.1.8's portable native-audio build.
+
+
+## AI Workers 0.1.26 — single-memory-authority alignment
+
+Base workers pin KITT Protocol 0.4.0. Evolution and Evals follow Agent CLI 0.76.0, whose durable semantic memory, provenance and Dreaming persistence are owned by standalone `kitt-memoryd`. Workers remain outside the memory authority and produce bounded evaluation/learning outputs only.
