@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.25 - 2026-09-28
+
+- Add evidence-backed reusable-experience generalization with episode lineage, support thresholds, success rate and evidence coverage.
+- Add long-horizon WorkingState recall/token-retention evaluation for Agent 0.75.1.
+- Pin base workers to KITT Protocol 0.3.0 and Evolution/Evals to the reviewed Agent CLI 0.75.1 revision.
+- Preserve staged explicit promotion and keep heavy learning/evaluation work outside the Agent hot path.
+
 ## 0.1.24 - 2026-09-28
 
 - Pin Evolution/Evals to the final KITT Agent CLI 0.74.6 revision after its Python 3.14 container and release-action alignment.

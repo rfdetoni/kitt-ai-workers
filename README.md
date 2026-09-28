@@ -219,3 +219,11 @@ Evolution and Evals are pinned to Agent CLI 0.74.6, the Python 3.14-aligned revi
 
 
 The 0.1.24 package metadata is pinned to the final Agent 0.74.6 control-plane revision, including the refreshed Docker release actions.
+
+
+## AI Workers 0.1.25 — evidence-backed experience learning
+
+- `kitt-evolution` now contains a deterministic first-stage ExperienceGeneralizer that groups repeated TaskEpisode-style traces, preserves supporting episode ids/evidence coverage, measures success rate and only emits reusable candidates above explicit support/outcome thresholds.
+- `kitt-evals` adds a long-horizon structured-context benchmark against Agent 0.75.1 WorkingState, measuring salient-fact recall and retained-token ratio after compaction.
+- Reusable experience extraction stays offline/evidence-first; it does not silently promote live skills or write shared memory by itself.
+- Base workers pin KITT Protocol 0.3.0; Evolution/Evals pin the reviewed Agent 0.75.1 semantic-IR snapshot.
