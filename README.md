@@ -74,7 +74,7 @@ Install local STT support only when required:
 python -m pip install -e '.[stt]'
 ```
 
-`kitt-evolution` is a separate Python 3.14+ package under `packages/kitt-evolution`; `kitt-evals` is also packaged separately. Version 0.1.27 aligns Evolution and Evals with `kitt-agent-cli 0.77.0`, including evidence-first bounded execution, output-limit recovery, and the current Agent control-plane contracts. The root K.I.T.T. installer composes these packages with the Agent instead of vendoring them into `kitt-agent-cli`.
+`kitt-evolution` is a separate Python 3.14+ package under `packages/kitt-evolution`; `kitt-evals` is also packaged separately. Version 0.1.28 aligns Evolution and Evals with `kitt-agent-cli 0.77.0`, including evidence-first bounded execution, output-limit recovery, and the current Agent control-plane contracts. The root K.I.T.T. installer composes these packages with the Agent instead of vendoring them into `kitt-agent-cli`.
 
 ---
 
@@ -253,3 +253,8 @@ Base workers pin KITT Protocol 0.4.0. Evolution and Evals follow Agent CLI 0.76.
 Evolution and Evals now pin the promoted Agent CLI 0.77.0 revision `44b19e76500fcc1edd2eafb5f4381c750917e657`. This keeps offline evolution/evaluation environments on the same evidence-first agentic execution contract used by the ecosystem snapshot: repository discovery precedes broad mutation work, existing-file edits remain compact/adaptive, and explicit provider output truncation is recovered as a smaller complete action rather than raw continuation.
 
 The base worker remains protocol-only and outside durable memory authority.
+
+
+## AI Workers 0.1.28 — final Agent 0.77 pin
+
+Evolution and Evals now pin the final promoted Agent CLI 0.77.0 main revision `2b697bd6c44c1b64b2459304bf073fd400fb8892`, including the reviewed Assistant 0.1.10/runtime 0.2.21 CI and release composition. Runtime behavior from 0.1.27 is unchanged; this release closes the immutable cross-repository provenance chain used by the root ecosystem lock.
