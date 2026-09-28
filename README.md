@@ -235,3 +235,6 @@ The 0.1.25 package metadata is pinned to the validated Agent 0.75.1 control-plan
 - Adds a long-horizon context benchmark that verifies the Agent's structured WorkingState preserves architecture decisions, failures/corrections, affected files, pending work and validation evidence while sharply reducing token volume.
 - Keeps workers outside shared-memory authority: workers produce bounded learning candidates/evaluation output; durable storage and provenance remain owned by Agent/kitt-memory integration.
 - Pins the base worker to KITT Protocol 0.3.0 and Evolution/Evals to Agent CLI 0.75.1.
+
+
+The 0.1.25 Evolution/Evals dependency pin follows the final Agent 0.75.1 validation snapshot `c24487c9727e10706f1d51fe933578207a2c6db1`, which aligns Agent CI with Assistant 0.1.7 without changing the Agent runtime API.
