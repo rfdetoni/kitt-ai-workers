@@ -60,7 +60,7 @@ The architecture keeps CUDA/PyTorch/Whisper-class dependencies out of resident s
 
 ## Requirements & installation
 
-The base `kitt-ai-workers` package supports Python **3.10+** and depends on the shared K.I.T.T. protocol package.
+The base `kitt-ai-workers` package supports Python **3.14+** and depends on the shared K.I.T.T. protocol package.
 
 Install the base package for development:
 
@@ -74,7 +74,7 @@ Install local STT support only when required:
 python -m pip install -e '.[stt]'
 ```
 
-`kitt-evolution` is a separate Python 3.12+ package under `packages/kitt-evolution`; `kitt-evals` is also packaged separately. Version 0.1.21 aligns Evolution and Evals with `kitt-agent-cli 0.74.3`, including the retained-TUI mouse/scroll/modal hardening while preserving the durable no-timeout approval lifecycle and current Agent control-plane contracts. The root K.I.T.T. installer composes these packages with the Agent instead of vendoring them into `kitt-agent-cli`.
+`kitt-evolution` is a separate Python 3.14+ package under `packages/kitt-evolution`; `kitt-evals` is also packaged separately. Version 0.1.21 aligns Evolution and Evals with `kitt-agent-cli 0.74.3`, including the retained-TUI mouse/scroll/modal hardening while preserving the durable no-timeout approval lifecycle and current Agent control-plane contracts. The root K.I.T.T. installer composes these packages with the Agent instead of vendoring them into `kitt-agent-cli`.
 
 ---
 
@@ -210,15 +210,15 @@ Evolution and Evals are pinned to the reviewed Agent CLI 0.74.4 revision used by
 
 ## AI Workers 0.1.24 — current-interpreter alignment
 
-All Python packages now require Python 3.14+, matching the ecosystem's single supported and continuously validated interpreter. The base worker pins KITT Protocol 0.2.1; Evolution and Evals pin Agent CLI 0.74.6.
+All Python packages now require Python 3.14+, matching the ecosystem's single supported and continuously validated interpreter. The base worker pins KITT Protocol 0.3.0; Evolution and Evals pin Agent CLI 0.75.1.
 
 
 ### 0.1.24 final Agent alignment
 
-Evolution and Evals are pinned to Agent CLI 0.74.6, the Python 3.14-aligned revision whose official container uses the same interpreter floor.
+Evolution and Evals are pinned to Agent CLI 0.75.1, including structured WorkingState, rehydratable tool outputs, declarative Surface support and Backend IR.
 
 
-The 0.1.24 package metadata is pinned to the final Agent 0.74.6 control-plane revision, including the refreshed Docker release actions.
+The 0.1.25 package metadata is pinned to the validated Agent 0.75.1 control-plane revision and Protocol 0.3.0.
 
 
 ## AI Workers 0.1.25 — evidence-backed experience learning
@@ -227,3 +227,11 @@ The 0.1.24 package metadata is pinned to the final Agent 0.74.6 control-plane re
 - `kitt-evals` adds a long-horizon structured-context benchmark against Agent 0.75.1 WorkingState, measuring salient-fact recall and retained-token ratio after compaction.
 - Reusable experience extraction stays offline/evidence-first; it does not silently promote live skills or write shared memory by itself.
 - Base workers pin KITT Protocol 0.3.0; Evolution/Evals pin the reviewed Agent 0.75.1 semantic-IR snapshot.
+
+
+## AI Workers 0.1.25 — experience lineage and long-memory evaluation
+
+- Adds deterministic first-stage experience generalization from repeated TaskEpisode-style traces. Reusable experiences keep supporting episode ids, evidence coverage, success rate, repeated successful actions and observed failure signals.
+- Adds a long-horizon context benchmark that verifies the Agent's structured WorkingState preserves architecture decisions, failures/corrections, affected files, pending work and validation evidence while sharply reducing token volume.
+- Keeps workers outside shared-memory authority: workers produce bounded learning candidates/evaluation output; durable storage and provenance remain owned by Agent/kitt-memory integration.
+- Pins the base worker to KITT Protocol 0.3.0 and Evolution/Evals to Agent CLI 0.75.1.
