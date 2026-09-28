@@ -74,7 +74,7 @@ Install local STT support only when required:
 python -m pip install -e '.[stt]'
 ```
 
-`kitt-evolution` is a separate Python 3.14+ package under `packages/kitt-evolution`; `kitt-evals` is also packaged separately. Version 0.1.29 aligns Evolution and Evals with `kitt-agent-cli 0.77.3`, including authoritative allow-all semantics for ordinary commands, true approval-modal pointer containment, and public `reasoning_summary` progress projection. The root K.I.T.T. installer composes these packages with the Agent instead of vendoring them into `kitt-agent-cli`.
+`kitt-evolution` is a separate Python 3.14+ package under `packages/kitt-evolution`; `kitt-evals` is also packaged separately. Version 0.1.30 aligns Evolution and Evals with `kitt-agent-cli 0.78.0`, preserving the validated execution contract while adding the Agent's onboarding, accessibility and bounded-context architecture hardening. The root K.I.T.T. installer composes these packages with the Agent instead of vendoring them into `kitt-agent-cli`.
 
 ---
 
@@ -265,3 +265,8 @@ Evolution and Evals now pin the final promoted Agent CLI 0.77.0 main revision `2
 Evolution and Evals now pin the promoted Agent CLI 0.77.3 revision `4e3eb53437cccfcd7254a338b8051e54e41ae1be`. This keeps offline evaluation/evolution on the same execution semantics as the interactive Agent: ordinary commands honor explicit `allow-all`, critical authority boundaries remain fail-closed, approval UI behavior is deterministic, and bounded public action summaries remain separate from chain-of-thought.
 
 The base worker remains protocol-only and outside durable memory authority.
+
+
+## AI Workers 0.1.30 — Agent 0.78.0 alignment
+
+Evolution and Evals pin the promoted Agent CLI 0.78.0 revision `f51dbba8a0506e90366ddb4e95026dc6c6614699`. This release changes dependency provenance only: workers remain outside durable memory authority, the base worker remains protocol-only, and evaluation/evolution behavior keeps the same ownership boundaries.
