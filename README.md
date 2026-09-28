@@ -7,7 +7,7 @@
 
 <p align="center">
   <a href="https://github.com/rfdetoni/kitt-ai-workers/blob/main/LICENSE"><img alt="License MIT" src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
-  <img alt="Python" src="https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white">
+  <img alt="Python" src="https://img.shields.io/badge/Python-3.14%2B-3776AB?logo=python&logoColor=white">
   <img alt="Isolation" src="https://img.shields.io/badge/execution-on--demand-6f42c1">
 </p>
 
@@ -206,3 +206,8 @@ The base worker package now pins kitt-protocol 0.2.0, matching the scoped-memory
 ## AI Workers 0.1.22 alignment
 
 Evolution and Evals are pinned to the reviewed Agent CLI 0.74.4 revision used by the 0.9.15 ecosystem snapshot. The base worker package remains protocol-only and does not acquire a direct kitt-memory dependency; memory authority and daemon mirroring stay outside worker processes.
+
+
+## AI Workers 0.1.23 — current-interpreter alignment
+
+All Python packages now require Python 3.14+, matching the ecosystem's single supported and continuously validated interpreter. The base worker pins KITT Protocol 0.2.1; Evolution and Evals pin Agent CLI 0.74.5.
