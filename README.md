@@ -74,7 +74,7 @@ Install local STT support only when required:
 python -m pip install -e '.[stt]'
 ```
 
-`kitt-evolution` is a separate Python 3.14+ package under `packages/kitt-evolution`; `kitt-evals` is also packaged separately. Version 0.1.21 aligns Evolution and Evals with `kitt-agent-cli 0.74.3`, including the retained-TUI mouse/scroll/modal hardening while preserving the durable no-timeout approval lifecycle and current Agent control-plane contracts. The root K.I.T.T. installer composes these packages with the Agent instead of vendoring them into `kitt-agent-cli`.
+`kitt-evolution` is a separate Python 3.14+ package under `packages/kitt-evolution`; `kitt-evals` is also packaged separately. Version 0.1.27 aligns Evolution and Evals with `kitt-agent-cli 0.77.0`, including evidence-first bounded execution, output-limit recovery, and the current Agent control-plane contracts. The root K.I.T.T. installer composes these packages with the Agent instead of vendoring them into `kitt-agent-cli`.
 
 ---
 
@@ -246,3 +246,10 @@ The 0.1.25 Evolution/Evals dependency pin follows Agent 0.75.1 snapshot `aee552c
 ## AI Workers 0.1.26 — single-memory-authority alignment
 
 Base workers pin KITT Protocol 0.4.0. Evolution and Evals follow Agent CLI 0.76.0, whose durable semantic memory, provenance and Dreaming persistence are owned by standalone `kitt-memoryd`. Workers remain outside the memory authority and produce bounded evaluation/learning outputs only.
+
+
+## AI Workers 0.1.27 — Agent 0.77 alignment
+
+Evolution and Evals now pin the promoted Agent CLI 0.77.0 revision `44b19e76500fcc1edd2eafb5f4381c750917e657`. This keeps offline evolution/evaluation environments on the same evidence-first agentic execution contract used by the ecosystem snapshot: repository discovery precedes broad mutation work, existing-file edits remain compact/adaptive, and explicit provider output truncation is recovered as a smaller complete action rather than raw continuation.
+
+The base worker remains protocol-only and outside durable memory authority.
