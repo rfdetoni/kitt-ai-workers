@@ -126,15 +126,13 @@ class ExperienceGeneralizer:
                 default="",
             )
             actions = cls._rank(
-                action
-                for episode in successful
-                for action in episode.actions
-            , 12)
+                (action for episode in successful for action in episode.actions),
+                12,
+            )
             failures = cls._rank(
-                signal
-                for episode in group
-                for signal in episode.failure_signals
-            , 8)
+                (signal for episode in group for signal in episode.failure_signals),
+                8,
+            )
             result.append(
                 ReusableExperience(
                     id=f"exp_{signature}",
