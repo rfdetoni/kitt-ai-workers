@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.31 - 2026-09-28
+
+- Pin Evolution and Evals to promoted KITT Agent CLI 0.78.1 (`fbc64cdd90d476773f1af081f864572a4cc72b7b`).
+- Preserve Protocol 0.4.0 and existing worker/memory ownership boundaries.
+- Keep the change dependency-only; no evaluation/evolution runtime contract is changed.
+
 ## 0.1.30 - 2026-09-28
 
 - Pin Evolution and Evals to promoted KITT Agent CLI 0.78.0 (`f51dbba8a0506e90366ddb4e95026dc6c6614699`).
