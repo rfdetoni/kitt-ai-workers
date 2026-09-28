@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.22 - 2026-09-27
+
+- Align Evolution/Evals with the final KITT Agent CLI 0.74.4 consistency-hardening revision.
+- Preserve the protocol 0.2.0 contract while consuming the Agent memory/approval fixes and Assistant 0.1.5 runtime pin.
+- Keep the worker base decoupled from kitt-memory; shared-memory behavior remains owned by Agent/Assistant integrations.
+
+
 ## 0.1.21 - 2026-09-27
 
 - Align Evolution/Evals with the validated kitt-agent-cli 0.74.3 Assistant/runtime pin.
