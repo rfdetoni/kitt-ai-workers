@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.24 - 2026-09-28
+
+- Pin Evolution/Evals to KITT Agent CLI 0.74.6 after its Python 3.14 container alignment.
+- Keep the Python 3.14+ support floor and KITT Protocol 0.2.1 base-worker pin unchanged.
+
+
 ## 0.1.23 - 2026-09-27
 
 - Require Python 3.14+ across base workers, Evolution and Evals.
