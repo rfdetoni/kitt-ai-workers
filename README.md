@@ -216,3 +216,6 @@ All Python packages now require Python 3.14+, matching the ecosystem's single su
 ### 0.1.24 final Agent alignment
 
 Evolution and Evals are pinned to Agent CLI 0.74.6, the Python 3.14-aligned revision whose official container uses the same interpreter floor.
+
+
+The 0.1.24 package metadata is pinned to the final Agent 0.74.6 control-plane revision, including the refreshed Docker release actions.
