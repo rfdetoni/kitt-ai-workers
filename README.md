@@ -201,3 +201,8 @@ MIT. See [LICENSE](LICENSE).
 ### Memory/protocol alignment
 
 The base worker package now pins kitt-protocol 0.2.0, matching the scoped-memory wire contract used by Agent 0.74.3 and Assistant 0.1.4. Workers do not access kitt-memory directly; this update keeps the ecosystem's protocol and Agent pins coherent.
+
+
+## AI Workers 0.1.22 alignment
+
+Evolution and Evals are pinned to the reviewed Agent CLI 0.74.4 revision used by the 0.9.15 ecosystem snapshot. The base worker package remains protocol-only and does not acquire a direct kitt-memory dependency; memory authority and daemon mirroring stay outside worker processes.
