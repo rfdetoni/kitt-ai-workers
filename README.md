@@ -74,7 +74,7 @@ Install local STT support only when required:
 python -m pip install -e '.[stt]'
 ```
 
-`kitt-evolution` is a separate Python 3.14+ package under `packages/kitt-evolution`; `kitt-evals` is also packaged separately. Version 0.1.28 aligns Evolution and Evals with `kitt-agent-cli 0.77.0`, including evidence-first bounded execution, output-limit recovery, and the current Agent control-plane contracts. The root K.I.T.T. installer composes these packages with the Agent instead of vendoring them into `kitt-agent-cli`.
+`kitt-evolution` is a separate Python 3.14+ package under `packages/kitt-evolution`; `kitt-evals` is also packaged separately. Version 0.1.29 aligns Evolution and Evals with `kitt-agent-cli 0.77.3`, including authoritative allow-all semantics for ordinary commands, true approval-modal pointer containment, and public `reasoning_summary` progress projection. The root K.I.T.T. installer composes these packages with the Agent instead of vendoring them into `kitt-agent-cli`.
 
 ---
 
@@ -258,3 +258,10 @@ The base worker remains protocol-only and outside durable memory authority.
 ## AI Workers 0.1.28 — final Agent 0.77 pin
 
 Evolution and Evals now pin the final promoted Agent CLI 0.77.0 main revision `2b697bd6c44c1b64b2459304bf073fd400fb8892`, including the reviewed Assistant 0.1.10/runtime 0.2.21 CI and release composition. Runtime behavior from 0.1.27 is unchanged; this release closes the immutable cross-repository provenance chain used by the root ecosystem lock.
+
+
+## AI Workers 0.1.29 — Agent 0.77.3 alignment
+
+Evolution and Evals now pin the promoted Agent CLI 0.77.3 revision `72be6def800f0f264e97571838a5f15aded70a9e`. This keeps offline evaluation/evolution on the same execution semantics as the interactive Agent: ordinary commands honor explicit `allow-all`, critical authority boundaries remain fail-closed, approval UI behavior is deterministic, and bounded public action summaries remain separate from chain-of-thought.
+
+The base worker remains protocol-only and outside durable memory authority.
