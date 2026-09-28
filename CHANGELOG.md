@@ -5,7 +5,7 @@
 - Add evidence-backed reusable-experience generalization with episode lineage, success-rate and evidence-coverage metrics.
 - Add long-horizon structured-compaction evaluation for decisions, corrections, artifacts, pending work and validation evidence.
 - Pin base workers to KITT Protocol 0.3.0.
-- Pin Evolution/Evals to KITT Agent CLI 0.75.1 final validation snapshot (`c24487c9727e10706f1d51fe933578207a2c6db1`).
+- Pin Evolution/Evals to KITT Agent CLI 0.75.1 portable-audio validation snapshot (`aee552caf0ef4fd7bd44b12a85e15e7df1febed4`).
 
 ## 0.1.25 - 2026-09-28
 

@@ -238,3 +238,6 @@ The 0.1.25 package metadata is pinned to the validated Agent 0.75.1 control-plan
 
 
 The 0.1.25 Evolution/Evals dependency pin follows the final Agent 0.75.1 validation snapshot `c24487c9727e10706f1d51fe933578207a2c6db1`, which aligns Agent CI with Assistant 0.1.7 without changing the Agent runtime API.
+
+
+The 0.1.25 Evolution/Evals dependency pin follows Agent 0.75.1 snapshot `aee552caf0ef4fd7bd44b12a85e15e7df1febed4`, aligned with Assistant 0.1.8's portable native-audio build.
