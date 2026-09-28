@@ -262,6 +262,6 @@ Evolution and Evals now pin the final promoted Agent CLI 0.77.0 main revision `2
 
 ## AI Workers 0.1.29 — Agent 0.77.3 alignment
 
-Evolution and Evals now pin the promoted Agent CLI 0.77.3 revision `72be6def800f0f264e97571838a5f15aded70a9e`. This keeps offline evaluation/evolution on the same execution semantics as the interactive Agent: ordinary commands honor explicit `allow-all`, critical authority boundaries remain fail-closed, approval UI behavior is deterministic, and bounded public action summaries remain separate from chain-of-thought.
+Evolution and Evals now pin the promoted Agent CLI 0.77.3 revision `4e3eb53437cccfcd7254a338b8051e54e41ae1be`. This keeps offline evaluation/evolution on the same execution semantics as the interactive Agent: ordinary commands honor explicit `allow-all`, critical authority boundaries remain fail-closed, approval UI behavior is deterministic, and bounded public action summaries remain separate from chain-of-thought.
 
 The base worker remains protocol-only and outside durable memory authority.
