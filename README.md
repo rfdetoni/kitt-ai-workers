@@ -74,7 +74,7 @@ Install local STT support only when required:
 python -m pip install -e '.[stt]'
 ```
 
-`kitt-evolution` is a separate Python 3.14+ package under `packages/kitt-evolution`; `kitt-evals` is also packaged separately. Version 0.1.30 aligns Evolution and Evals with `kitt-agent-cli 0.78.0`, preserving the validated execution contract while adding the Agent's onboarding, accessibility and bounded-context architecture hardening. The root K.I.T.T. installer composes these packages with the Agent instead of vendoring them into `kitt-agent-cli`.
+`kitt-evolution` is a separate Python 3.14+ package under `packages/kitt-evolution`; `kitt-evals` is also packaged separately. Version 0.1.31 aligns Evolution and Evals with `kitt-agent-cli 0.78.1`, preserving the validated execution contract while adding the governed Figma MCP plugin and scoped plugin-owned MCP lifecycle. The root K.I.T.T. installer composes these packages with the Agent instead of vendoring them into `kitt-agent-cli`.
 
 ---
 
@@ -270,3 +270,8 @@ The base worker remains protocol-only and outside durable memory authority.
 ## AI Workers 0.1.30 — Agent 0.78.0 alignment
 
 Evolution and Evals pin the promoted Agent CLI 0.78.0 revision `f51dbba8a0506e90366ddb4e95026dc6c6614699`. This release changes dependency provenance only: workers remain outside durable memory authority, the base worker remains protocol-only, and evaluation/evolution behavior keeps the same ownership boundaries.
+
+
+## AI Workers 0.1.31 — Agent 0.78.1 alignment
+
+Evolution and Evals pin the promoted Agent CLI 0.78.1 revision `fbc64cdd90d476773f1af081f864572a4cc72b7b`. This is a dependency-provenance update only: the base worker remains Protocol-only, durable memory authority remains outside workers, and evaluation/evolution runtime semantics are unchanged.
