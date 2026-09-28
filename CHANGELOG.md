@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.23 - 2026-09-27
+
+- Require Python 3.14+ across base workers, Evolution and Evals.
+- Pin base workers to kitt-protocol 0.2.1.
+- Pin Evolution/Evals to the final Agent CLI 0.74.5 dependency-alignment snapshot.
+
+
 ## 0.1.22 - 2026-09-27
 
 - Align Evolution/Evals with the final KITT Agent CLI 0.74.4 consistency-hardening revision.
