@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.26 - 2026-09-28
+
+- Pin base workers to KITT Protocol 0.4.0.
+- Align Evolution/Evals with Agent CLI 0.76.0 and standalone kitt-memory authority.
+- Keep workers free of direct durable-memory ownership.
+
 ## 0.1.25 - 2026-09-28
 
 - Add evidence-backed reusable-experience generalization with episode lineage, success-rate and evidence-coverage metrics.
