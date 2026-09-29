@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.34 - 2026-09-29
+
+- Pin Evolution/Evals to Agent CLI 0.78.4 (`7d56faec43fa6f5c0e4b1f63c0c18e269a0eb9d8`).
+- Preserve the staged execution contract used by the promoted ecosystem snapshot.
+
+
 ## 0.1.33 - 2026-09-29
 
 - Pin Evolution/Evals to Agent CLI 0.78.3 (`89a63da16368a59eac5eee185373bfbf89f516b1`).
