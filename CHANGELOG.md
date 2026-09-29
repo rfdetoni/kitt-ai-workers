@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.35 - 2026-09-29
+
+- Pin Evolution/Evals to Agent CLI 0.78.5 (`5315847b09dbe6d0ebbf3f7b714a1b6ceb1469b3`).
+- Consume the compact staged reverse-proxy execution contract without duplicating prompt orchestration.
+
+
 ## 0.1.34 - 2026-09-29
 
 - Pin Evolution/Evals to Agent CLI 0.78.4 (`7d56faec43fa6f5c0e4b1f63c0c18e269a0eb9d8`).
