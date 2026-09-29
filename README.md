@@ -74,7 +74,7 @@ Install local STT support only when required:
 python -m pip install -e '.[stt]'
 ```
 
-`kitt-evolution` is a separate Python 3.14+ package under `packages/kitt-evolution`; `kitt-evals` is also packaged separately. Version 0.1.37 aligns Evolution and Evals with `kitt-agent-cli 0.78.7`, preserving the validated execution contract while adding the governed Figma MCP plugin and scoped plugin-owned MCP lifecycle. The root K.I.T.T. installer composes these packages with the Agent instead of vendoring them into `kitt-agent-cli`.
+`kitt-evolution` is a separate Python 3.14+ package under `packages/kitt-evolution`; `kitt-evals` is also packaged separately. Version 0.1.38 aligns Evolution and Evals with `kitt-agent-cli 0.78.9`, preserving the validated execution contract while adding the governed Figma MCP plugin and scoped plugin-owned MCP lifecycle. The root K.I.T.T. installer composes these packages with the Agent instead of vendoring them into `kitt-agent-cli`.
 
 ---
 
@@ -222,6 +222,11 @@ Evolution and Evals pin Agent CLI 0.78.5 revision `5315847b09dbe6d0ebbf3f7b714a1
 Evolution and Evals pin Agent CLI 0.78.6 revision `24c104f76d1e2f10055c616bc8f34ad8776d3cd3`, where reverse-proxy tool schemas are transported structurally and no longer depend on textual prompt parsing.
 
 
-## AI Workers 0.1.37 — Agent 0.78.7 runtime alignment
+## AI Workers 0.1.38 — Agent 0.78.7 runtime alignment
 
-Evolution and Evals pin Agent CLI 0.78.7 revision `ca77ea1ffc3b8563adfe24c3b6389ddba9e3adfd`, including authoritative objective preservation and runtime identity diagnostics used by the updated ecosystem installer.
+Evolution and Evals pin Agent CLI 0.78.7 revision `f06e4d6990228aae6283042e4c8b9d1092f4c58e`, including authoritative objective preservation and runtime identity diagnostics used by the updated ecosystem installer.
+
+
+## AI Workers 0.1.38 — Agent 0.78.9 cancellation alignment
+
+Evolution and Evals pin Agent CLI 0.78.9 revision `f06e4d6990228aae6283042e4c8b9d1092f4c58e`, including the Ctrl+C cancellation isolation fix and recoverable model-response flow.
