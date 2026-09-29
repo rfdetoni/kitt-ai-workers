@@ -74,7 +74,7 @@ Install local STT support only when required:
 python -m pip install -e '.[stt]'
 ```
 
-`kitt-evolution` is a separate Python 3.14+ package under `packages/kitt-evolution`; `kitt-evals` is also packaged separately. Version 0.1.33 aligns Evolution and Evals with `kitt-agent-cli 0.78.3`, preserving the validated execution contract while adding the governed Figma MCP plugin and scoped plugin-owned MCP lifecycle. The root K.I.T.T. installer composes these packages with the Agent instead of vendoring them into `kitt-agent-cli`.
+`kitt-evolution` is a separate Python 3.14+ package under `packages/kitt-evolution`; `kitt-evals` is also packaged separately. Version 0.1.34 aligns Evolution and Evals with `kitt-agent-cli 0.78.4`, preserving the validated execution contract while adding the governed Figma MCP plugin and scoped plugin-owned MCP lifecycle. The root K.I.T.T. installer composes these packages with the Agent instead of vendoring them into `kitt-agent-cli`.
 
 ---
 
@@ -205,3 +205,8 @@ Evolution and Evals pin Agent CLI 0.78.2. The base runner intentionally exposes 
 ## AI Workers 0.1.33 — Agent 0.78.3 alignment
 
 Evolution and Evals pin Agent CLI 0.78.3 revision `89a63da16368a59eac5eee185373bfbf89f516b1`. The base worker contract remains intentionally narrow: NDJSON `health`/`echo`, separate STT service, and no advertised vision/OCR capability without an implementation.
+
+
+## AI Workers 0.1.34 — Agent 0.78.4 alignment
+
+Evolution and Evals pin Agent CLI 0.78.4 revision `7d56faec43fa6f5c0e4b1f63c0c18e269a0eb9d8`, including the staged reverse-proxy execution envelope and semantic/raw prompt deduplication.
