@@ -74,7 +74,7 @@ Install local STT support only when required:
 python -m pip install -e '.[stt]'
 ```
 
-`kitt-evolution` is a separate Python 3.14+ package under `packages/kitt-evolution`; `kitt-evals` is also packaged separately. Version 0.1.31 aligns Evolution and Evals with `kitt-agent-cli 0.78.1`, preserving the validated execution contract while adding the governed Figma MCP plugin and scoped plugin-owned MCP lifecycle. The root K.I.T.T. installer composes these packages with the Agent instead of vendoring them into `kitt-agent-cli`.
+`kitt-evolution` is a separate Python 3.14+ package under `packages/kitt-evolution`; `kitt-evals` is also packaged separately. Version 0.1.32 aligns Evolution and Evals with `kitt-agent-cli 0.78.2`, preserving the validated execution contract while adding the governed Figma MCP plugin and scoped plugin-owned MCP lifecycle. The root K.I.T.T. installer composes these packages with the Agent instead of vendoring them into `kitt-agent-cli`.
 
 ---
 
@@ -197,81 +197,6 @@ Keep the base worker runtime small. Heavy dependencies should remain optional an
 
 MIT. See [LICENSE](LICENSE).
 
+## AI Workers 0.1.32 — ecosystem cleanup
 
-### Memory/protocol alignment
-
-The base worker package now pins kitt-protocol 0.2.0, matching the scoped-memory wire contract used by Agent 0.74.3 and Assistant 0.1.4. Workers do not access kitt-memory directly; this update keeps the ecosystem's protocol and Agent pins coherent.
-
-
-## AI Workers 0.1.22 alignment
-
-Evolution and Evals are pinned to the reviewed Agent CLI 0.74.4 revision used by the 0.9.15 ecosystem snapshot. The base worker package remains protocol-only and does not acquire a direct kitt-memory dependency; memory authority and daemon mirroring stay outside worker processes.
-
-
-## AI Workers 0.1.24 — current-interpreter alignment
-
-All Python packages now require Python 3.14+, matching the ecosystem's single supported and continuously validated interpreter. The base worker pins KITT Protocol 0.3.0; Evolution and Evals pin Agent CLI 0.75.1.
-
-
-### 0.1.24 final Agent alignment
-
-Evolution and Evals are pinned to Agent CLI 0.75.1, including structured WorkingState, rehydratable tool outputs, declarative Surface support and Backend IR.
-
-
-The 0.1.25 package metadata is pinned to the validated Agent 0.75.1 control-plane revision and Protocol 0.3.0.
-
-
-## AI Workers 0.1.25 — evidence-backed experience learning
-
-- `kitt-evolution` now contains a deterministic first-stage ExperienceGeneralizer that groups repeated TaskEpisode-style traces, preserves supporting episode ids/evidence coverage, measures success rate and only emits reusable candidates above explicit support/outcome thresholds.
-- `kitt-evals` adds a long-horizon structured-context benchmark against Agent 0.75.1 WorkingState, measuring salient-fact recall and retained-token ratio after compaction.
-- Reusable experience extraction stays offline/evidence-first; it does not silently promote live skills or write shared memory by itself.
-- Base workers pin KITT Protocol 0.3.0; Evolution/Evals pin the reviewed Agent 0.75.1 semantic-IR snapshot.
-
-
-## AI Workers 0.1.25 — experience lineage and long-memory evaluation
-
-- Adds deterministic first-stage experience generalization from repeated TaskEpisode-style traces. Reusable experiences keep supporting episode ids, evidence coverage, success rate, repeated successful actions and observed failure signals.
-- Adds a long-horizon context benchmark that verifies the Agent's structured WorkingState preserves architecture decisions, failures/corrections, affected files, pending work and validation evidence while sharply reducing token volume.
-- Keeps workers outside shared-memory authority: workers produce bounded learning candidates/evaluation output; durable storage and provenance remain owned by Agent/kitt-memory integration.
-- Pins the base worker to KITT Protocol 0.3.0 and Evolution/Evals to Agent CLI 0.75.1.
-
-
-The 0.1.25 Evolution/Evals dependency pin follows the final Agent 0.75.1 validation snapshot `c24487c9727e10706f1d51fe933578207a2c6db1`, which aligns Agent CI with Assistant 0.1.7 without changing the Agent runtime API.
-
-
-The 0.1.25 Evolution/Evals dependency pin follows Agent 0.75.1 snapshot `aee552caf0ef4fd7bd44b12a85e15e7df1febed4`, aligned with Assistant 0.1.8's portable native-audio build.
-
-
-## AI Workers 0.1.26 — single-memory-authority alignment
-
-Base workers pin KITT Protocol 0.4.0. Evolution and Evals follow Agent CLI 0.76.0, whose durable semantic memory, provenance and Dreaming persistence are owned by standalone `kitt-memoryd`. Workers remain outside the memory authority and produce bounded evaluation/learning outputs only.
-
-
-## AI Workers 0.1.27 — Agent 0.77 alignment
-
-Evolution and Evals now pin the promoted Agent CLI 0.77.0 revision `44b19e76500fcc1edd2eafb5f4381c750917e657`. This keeps offline evolution/evaluation environments on the same evidence-first agentic execution contract used by the ecosystem snapshot: repository discovery precedes broad mutation work, existing-file edits remain compact/adaptive, and explicit provider output truncation is recovered as a smaller complete action rather than raw continuation.
-
-The base worker remains protocol-only and outside durable memory authority.
-
-
-## AI Workers 0.1.28 — final Agent 0.77 pin
-
-Evolution and Evals now pin the final promoted Agent CLI 0.77.0 main revision `2b697bd6c44c1b64b2459304bf073fd400fb8892`, including the reviewed Assistant 0.1.10/runtime 0.2.21 CI and release composition. Runtime behavior from 0.1.27 is unchanged; this release closes the immutable cross-repository provenance chain used by the root ecosystem lock.
-
-
-## AI Workers 0.1.29 — Agent 0.77.3 alignment
-
-Evolution and Evals now pin the promoted Agent CLI 0.77.3 revision `4e3eb53437cccfcd7254a338b8051e54e41ae1be`. This keeps offline evaluation/evolution on the same execution semantics as the interactive Agent: ordinary commands honor explicit `allow-all`, critical authority boundaries remain fail-closed, approval UI behavior is deterministic, and bounded public action summaries remain separate from chain-of-thought.
-
-The base worker remains protocol-only and outside durable memory authority.
-
-
-## AI Workers 0.1.30 — Agent 0.78.0 alignment
-
-Evolution and Evals pin the promoted Agent CLI 0.78.0 revision `f51dbba8a0506e90366ddb4e95026dc6c6614699`. This release changes dependency provenance only: workers remain outside durable memory authority, the base worker remains protocol-only, and evaluation/evolution behavior keeps the same ownership boundaries.
-
-
-## AI Workers 0.1.31 — Agent 0.78.1 alignment
-
-Evolution and Evals pin the promoted Agent CLI 0.78.1 revision `fbc64cdd90d476773f1af081f864572a4cc72b7b`. This is a dependency-provenance update only: the base worker remains Protocol-only, durable memory authority remains outside workers, and evaluation/evolution runtime semantics are unchanged.
+Evolution and Evals pin Agent CLI 0.78.2. The base runner intentionally exposes only the implemented `health` and `echo` NDJSON capabilities; STT remains a separate local service. Vision/OCR is not advertised until a concrete worker capability exists.
