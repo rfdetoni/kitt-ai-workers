@@ -74,7 +74,7 @@ Install local STT support only when required:
 python -m pip install -e '.[stt]'
 ```
 
-`kitt-evolution` is a separate Python 3.14+ package under `packages/kitt-evolution`; `kitt-evals` is also packaged separately. Version 0.1.32 aligns Evolution and Evals with `kitt-agent-cli 0.78.2`, preserving the validated execution contract while adding the governed Figma MCP plugin and scoped plugin-owned MCP lifecycle. The root K.I.T.T. installer composes these packages with the Agent instead of vendoring them into `kitt-agent-cli`.
+`kitt-evolution` is a separate Python 3.14+ package under `packages/kitt-evolution`; `kitt-evals` is also packaged separately. Version 0.1.33 aligns Evolution and Evals with `kitt-agent-cli 0.78.3`, preserving the validated execution contract while adding the governed Figma MCP plugin and scoped plugin-owned MCP lifecycle. The root K.I.T.T. installer composes these packages with the Agent instead of vendoring them into `kitt-agent-cli`.
 
 ---
 
@@ -200,3 +200,8 @@ MIT. See [LICENSE](LICENSE).
 ## AI Workers 0.1.32 — ecosystem cleanup
 
 Evolution and Evals pin Agent CLI 0.78.2. The base runner intentionally exposes only the implemented `health` and `echo` NDJSON capabilities; STT remains a separate local service. Vision/OCR is not advertised until a concrete worker capability exists.
+
+
+## AI Workers 0.1.33 — Agent 0.78.3 alignment
+
+Evolution and Evals pin Agent CLI 0.78.3 revision `89a63da16368a59eac5eee185373bfbf89f516b1`. The base worker contract remains intentionally narrow: NDJSON `health`/`echo`, separate STT service, and no advertised vision/OCR capability without an implementation.
