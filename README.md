@@ -219,4 +219,4 @@ Evolution and Evals pin Agent CLI 0.78.5 revision `5315847b09dbe6d0ebbf3f7b714a1
 
 ## AI Workers 0.1.36 — Agent 0.78.6 tool-schema alignment
 
-Evolution and Evals pin Agent CLI 0.78.6 revision `f223e0dd750f90d565d58c9241c721b5067b9c78`, where reverse-proxy tool schemas are transported structurally and no longer depend on textual prompt parsing.
+Evolution and Evals pin Agent CLI 0.78.6 revision `d6eae285b62e22add5b870fbfb14dbab1a6b4186`, where reverse-proxy tool schemas are transported structurally and no longer depend on textual prompt parsing.
