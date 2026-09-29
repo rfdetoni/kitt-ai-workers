@@ -1,6 +1,6 @@
 # Manual do K.I.T.T. AI Workers (`kitt-ai-workers`)
 
-> Serviços de Inteligência Artificial locais: Servidor STT (Speech-to-Text) com Whisper, processamento de áudio, visão e workers de execução em lote.
+> Serviços locais de IA do K.I.T.T.: STT com Whisper, worker NDJSON leve e workloads isolados de avaliação/evolução.
 
 ---
 
@@ -11,13 +11,13 @@ O **`kitt-ai-workers`** encapsula serviços pesados de Machine Learning que exec
 ### Principais Recursos:
 - **`stt_server`**: Servidor HTTP local compatível com a API `/v1/audio/transcriptions` (utilizando OpenAI Whisper / Faster-Whisper localmente).
 - **Proteção Anti-CSRF (R5)**: Bloqueio estrito de requisições disparadas por navegadores (`Origin` header presente retorna `403 Forbidden`) para evitar exploração de endpoints locais de processamento pesado.
-- **Workers NDJSON**: Executores de visão computacional e OCR sob demanda através de pipes padrão `stdin`/`stdout`.
+- **Workers NDJSON**: runner leve sob demanda via `stdin`/`stdout`, atualmente com capabilities `health` e `echo`.
 
 ---
 
 ## 2. Requisitos de Sistema
 
-- **Python**: 3.12, 3.13 ou 3.14
+- **Python**: 3.14+
 - **FFmpeg**: Necessário para decodificação e processamento de formatos de áudio (MP3, WAV, OGG, FLAC, M4A).
 - **Dispositivo**: CPU x86_64/ARM64 ou GPU com aceleração CUDA/MPS.
 
