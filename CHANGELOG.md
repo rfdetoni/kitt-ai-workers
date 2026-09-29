@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.36 - 2026-09-29
+
+- Pin Evolution/Evals to Agent CLI 0.78.6 (`5ae22f3a2adb589605a3731948c828099da32148`).
+- Consume structural reverse-proxy tool schemas independently from prompt compaction.
+
+
 ## 0.1.35 - 2026-09-29
 
 - Pin Evolution/Evals to Agent CLI 0.78.5 (`5315847b09dbe6d0ebbf3f7b714a1b6ceb1469b3`).
