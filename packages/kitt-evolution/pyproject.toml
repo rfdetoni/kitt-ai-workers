@@ -9,7 +9,7 @@ description = "Offline staged self-evolution engine for K.I.T.T. skills"
 requires-python = ">=3.14"
 license = {text = "MIT"}
 dependencies = [
-  "kitt-agent-cli @ git+https://github.com/rfdetoni/kitt-agent-cli.git@d6eae285b62e22add5b870fbfb14dbab1a6b4186",
+  "kitt-agent-cli @ git+https://github.com/rfdetoni/kitt-agent-cli.git@24c104f76d1e2f10055c616bc8f34ad8776d3cd3",
 ]
 
 [tool.setuptools.packages.find]
