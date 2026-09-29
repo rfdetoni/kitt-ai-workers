@@ -1,6 +1,6 @@
 [project]
 name = "kitt-ai-workers"
-version = "0.1.36"
+version = "0.1.37"
 requires-python = ">=3.14"
 dependencies = [
   "kitt-protocol @ git+https://github.com/rfdetoni/kitt-protocol.git@5369821eb12128a08d80a56874351aaf02ef5cc7#subdirectory=sdk/python",
