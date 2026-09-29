@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.32 - 2026-09-28
+
+- Pin Evolution/Evals to Agent CLI 0.78.2.
+- Remove unsupported vision/OCR claims from worker documentation.
+- Add Python unused-symbol/static checks to CI.
+- Keep the base runner intentionally limited to implemented capabilities.
+
 ## 0.1.31 - 2026-09-28
 
 - Pin Evolution and Evals to promoted KITT Agent CLI 0.78.1 (`fbc64cdd90d476773f1af081f864572a4cc72b7b`).
@@ -24,13 +31,6 @@
 - Add long-horizon structured-compaction evaluation for decisions, corrections, artifacts, pending work and validation evidence.
 - Pin base workers to KITT Protocol 0.3.0.
 - Pin Evolution/Evals to KITT Agent CLI 0.75.1 portable-audio validation snapshot (`aee552caf0ef4fd7bd44b12a85e15e7df1febed4`).
-
-## 0.1.25 - 2026-09-28
-
-- Add evidence-backed reusable-experience generalization with episode lineage, support thresholds, success rate and evidence coverage.
-- Add long-horizon WorkingState recall/token-retention evaluation for Agent 0.75.1.
-- Pin base workers to KITT Protocol 0.3.0 and Evolution/Evals to the reviewed Agent CLI 0.75.1 revision.
-- Preserve staged explicit promotion and keep heavy learning/evaluation work outside the Agent hot path.
 
 ## 0.1.24 - 2026-09-28
 
