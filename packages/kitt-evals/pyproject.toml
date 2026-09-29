@@ -4,12 +4,12 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "kitt-evals"
-version = "0.1.35"
+version = "0.1.36"
 description = "Evaluation and benchmark suite for K.I.T.T."
 requires-python = ">=3.14"
 license = {text = "MIT"}
 dependencies = [
-  "kitt-agent-cli @ git+https://github.com/rfdetoni/kitt-agent-cli.git@5315847b09dbe6d0ebbf3f7b714a1b6ceb1469b3",
+  "kitt-agent-cli @ git+https://github.com/rfdetoni/kitt-agent-cli.git@5ae22f3a2adb589605a3731948c828099da32148",
 ]
 
 [tool.setuptools.packages.find]
