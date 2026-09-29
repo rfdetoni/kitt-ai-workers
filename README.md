@@ -74,7 +74,7 @@ Install local STT support only when required:
 python -m pip install -e '.[stt]'
 ```
 
-`kitt-evolution` is a separate Python 3.14+ package under `packages/kitt-evolution`; `kitt-evals` is also packaged separately. Version 0.1.35 aligns Evolution and Evals with `kitt-agent-cli 0.78.5`, preserving the validated execution contract while adding the governed Figma MCP plugin and scoped plugin-owned MCP lifecycle. The root K.I.T.T. installer composes these packages with the Agent instead of vendoring them into `kitt-agent-cli`.
+`kitt-evolution` is a separate Python 3.14+ package under `packages/kitt-evolution`; `kitt-evals` is also packaged separately. Version 0.1.36 aligns Evolution and Evals with `kitt-agent-cli 0.78.6`, preserving the validated execution contract while adding the governed Figma MCP plugin and scoped plugin-owned MCP lifecycle. The root K.I.T.T. installer composes these packages with the Agent instead of vendoring them into `kitt-agent-cli`.
 
 ---
 
@@ -215,3 +215,8 @@ Evolution and Evals pin Agent CLI 0.78.4 revision `7d56faec43fa6f5c0e4b1f63c0c18
 ## AI Workers 0.1.35 — Agent 0.78.5 staged prompt alignment
 
 Evolution and Evals pin Agent CLI 0.78.5 revision `5315847b09dbe6d0ebbf3f7b714a1b6ceb1469b3`, consuming the compact reverse-proxy boundary and deterministic discovery/mutation/validation execution plan.
+
+
+## AI Workers 0.1.36 — Agent 0.78.6 tool-schema alignment
+
+Evolution and Evals pin Agent CLI 0.78.6 revision `5ae22f3a2adb589605a3731948c828099da32148`, where reverse-proxy tool schemas are transported structurally and no longer depend on textual prompt parsing.
