@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.33 - 2026-09-29
+
+- Pin Evolution/Evals to Agent CLI 0.78.3 (`89a63da16368a59eac5eee185373bfbf89f516b1`).
+- Keep the strict unused-symbol CI gate introduced in 0.1.32.
+- Preserve the implemented worker surface without unsupported vision/OCR claims.
+
+
 ## 0.1.32 - 2026-09-28
 
 - Pin Evolution/Evals to Agent CLI 0.78.2.
