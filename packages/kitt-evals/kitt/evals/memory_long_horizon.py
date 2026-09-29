@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Iterable
 
 from kitt.compaction.service import CompactionService
 from kitt.context_filter.prompt_budget import TokenCounter
