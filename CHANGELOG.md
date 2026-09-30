@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.40 - 2026-09-30
+
+- Follow KITT Protocol `main` for the base worker package instead of embedding a stale protocol commit SHA.
+- Align base workers, Evolution and Evals on version 0.1.40 for the Agent CLI 0.80 / Protocol 0.5 ecosystem contract.
+- Preserve the existing ownership boundary: workers provide isolated execution/evaluation while durable run coordination, memory and approval authority stay in their owning KITT components.
+
 ## 0.1.36 - 2026-09-29
 
 - Pin Evolution/Evals to Agent CLI 0.78.6 (`24c104f76d1e2f10055c616bc8f34ad8776d3cd3`).
