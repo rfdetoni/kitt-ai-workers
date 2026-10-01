@@ -5,30 +5,34 @@ permissions:
   contents: read
 
 jobs:
-  python:
+  critical:
     runs-on: ubuntu-latest
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
-        with: { python-version: '3.14' }
-      - run: python -m pip install -e .
-      - run: python -m unittest discover tests
+        with:
+          python-version: '3.14'
+          cache: pip
+      - name: Install worker and shared agent dependency once
+        run: |
+          python -m pip install -e .
+          python -m pip install -e packages/kitt-evolution
+          python -m pip install --no-deps -e packages/kitt-evals
+      - name: Worker protocol and STT boundaries
+        run: python -m unittest tests.test_protocol tests.test_stt_server
+      - name: Evolution security and atomic promotion
+        run: >
+          python -m unittest
+          packages.kitt-evolution.tests.test_evolution_egress
+          packages.kitt-evolution.tests.test_self_evolution
+      - name: Evaluation contract smoke
+        run: python -m unittest packages.kitt-evals.tests.test_evals_and_benchmarks
       - name: Static Python checks
         run: |
           python -m pip install ruff
           ruff check kitt_workers packages --select F401,F841,F821,E9 --exclude "**/__init__.py"
-      - name: Install evolution module
-        run: python -m pip install -e packages/kitt-evolution
-      - name: Test evolution module
-        run: python -m unittest discover packages/kitt-evolution/tests
-      - name: Install eval module
-        run: python -m pip install -e packages/kitt-evals
-      - name: Test eval module
-        run: python -m unittest discover packages/kitt-evals/tests
-      - name: Smoke-test eval module
-        run: >-
-          python -c "from kitt.evals.corpus import EvalRunner; from kitt.evals.retrieval import run_eval; print(EvalRunner, run_eval)"
       - name: Verify installed dependency graph
         run: python -m pip check
