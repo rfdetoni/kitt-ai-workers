@@ -27,6 +27,39 @@ class TestSttServer(unittest.TestCase):
             self.assertTrue(stt_server._TRANSCRIPTION_LOCK.acquire(blocking=False))
             stt_server._TRANSCRIPTION_LOCK.release()
 
+    def test_busy_transcription_is_rejected_without_starting_work(self):
+        from unittest.mock import patch
+        from types import SimpleNamespace
+
+        body = b"audio"
+        replies = []
+        busy_lock = SimpleNamespace(acquire=lambda **_: False)
+        handler = SimpleNamespace(
+            path="/v1/audio/transcriptions",
+            headers={
+                "Content-Type": "multipart/form-data; boundary=x",
+                "Content-Length": str(len(body)),
+            },
+            rfile=io.BytesIO(body),
+            _send_json=lambda status, payload, **kwargs: replies.append(
+                (status, kwargs.get("headers"))
+            ),
+        )
+        with (
+            patch.object(stt_server, "_engine_ready", return_value=True),
+            patch.object(
+                stt_server,
+                "_parse_multipart",
+                return_value=(body, "pt", "model", ""),
+            ),
+            patch.object(stt_server, "_TRANSCRIPTION_LOCK", busy_lock),
+            patch.object(stt_server, "transcribe_audio_file") as transcribe,
+        ):
+            stt_server.LocalSTTRequestHandler.do_POST(handler)
+
+        self.assertEqual(replies, [(429, {"Retry-After": "1"})])
+        transcribe.assert_not_called()
+
     def test_parse_multipart_extracts_fields(self):
         boundary = "----WebKitFormBoundary7MA4YWxkTrZu0gW"
         content_type = f"multipart/form-data; boundary={boundary}"
