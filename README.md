@@ -74,7 +74,7 @@ Install local STT support only when required:
 python -m pip install -e '.[stt]'
 ```
 
-`kitt-evolution` is a separate Python 3.14+ package under `packages/kitt-evolution`; `kitt-evals` is also packaged separately. Version 0.1.40 follows `kitt-agent-cli` and `kitt-protocol` `main` for the Agent 0.80 / Protocol 0.5 execution contract. Evolution and Evals remain separately packaged, evidence-driven companions rather than live runtime authorities. The root K.I.T.T. installer composes these packages with the Agent instead of vendoring them into `kitt-agent-cli`.
+`kitt-evolution` is a separate Python 3.14+ package under `packages/kitt-evolution`; `kitt-evals` is also packaged separately. Version 0.1.42 follows `kitt-agent-cli` and `kitt-protocol` `main`; the current validated lock baseline is Agent CLI 0.83.9 and Protocol 0.9.0. Evolution and Evals remain separately packaged, evidence-driven companions rather than live runtime authorities. The root K.I.T.T. installer composes these packages with the Agent instead of vendoring them into `kitt-agent-cli`.
 
 ---
 
