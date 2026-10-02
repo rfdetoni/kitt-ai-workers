@@ -5,6 +5,7 @@ import hashlib
 from pathlib import Path
 from urllib.parse import urlparse
 
+from kitt.llm.privacy import profile_processing_is_local
 from kitt.security.egress import EgressPolicy
 from kitt.security.sensitive_data import SensitiveDataScanner
 
@@ -12,12 +13,9 @@ from kitt.security.sensitive_data import SensitiveDataScanner
 def _profile_local(profile) -> tuple[bool, str]:
     base_url = str(getattr(profile, "base_url", "") or "")
     host = urlparse(base_url).hostname if base_url else ""
-    if host in {"127.0.0.1", "localhost", "::1"}:
-        return True, host
     backend = str(getattr(profile, "backend", "") or "").casefold()
-    if not base_url and backend in {"local", "lmstudio", "ollama"}:
-        return True, backend
-    return False, host or backend or "provider"
+    return profile_processing_is_local(profile), host or backend or "provider"
+
 
 
 class EvolutionEgressClient:

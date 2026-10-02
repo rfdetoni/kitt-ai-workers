@@ -126,3 +126,7 @@ import json
 ```bash
 python3 -m unittest discover tests -v
 ```
+
+## 0.1.42: privacidade e estabilidade
+
+Evolution compartilha a classificação de processamento local do Agent CLI 0.83: um reverse proxy em loopback continua sendo processamento remoto. Erros na criação ou escrita do arquivo temporário do STT liberam o lock da transcrição e permitem novas requisições. Os pacotes seguem main; nenhum modelo Whisper foi baixado para validar estas fronteiras.

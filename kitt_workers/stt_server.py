@@ -561,11 +561,11 @@ class LocalSTTRequestHandler(BaseHTTPRequestHandler):
             )
             return
 
-        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
-            tmp_path = tmp.name
-            tmp.write(file_data)
-
+        tmp_path = None
         try:
+            with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
+                tmp_path = tmp.name
+                tmp.write(file_data)
             if not _SERVER_MODEL_NAME:
                 raise RuntimeError("STT server model is not configured")
             result = transcribe_audio_file(
@@ -588,7 +588,7 @@ class LocalSTTRequestHandler(BaseHTTPRequestHandler):
         finally:
             _TRANSCRIPTION_LOCK.release()
             try:
-                os.unlink(tmp_path)
+                if tmp_path is not None: os.unlink(tmp_path)
             except OSError:
                 pass
 

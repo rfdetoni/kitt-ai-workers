@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.42 — 2026-10-02
+
+- Always release the STT transcription lock and clean up a created temporary file when file creation/write fails.
+- Use Agent CLI's processing-locality predicate in Evolution: a loopback web proxy does not bypass local-only privacy policy.
+- Align worker packages and Protocol/Agent consumers with the bounded gateway lifecycle release.
+
 ## 0.1.40 - 2026-09-30
 
 - Follow KITT Protocol `main` for the base worker package instead of embedding a stale protocol commit SHA.

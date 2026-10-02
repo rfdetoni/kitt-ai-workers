@@ -64,6 +64,12 @@ class EvolutionEgressTests(unittest.TestCase):
             with self.assertRaises(PermissionError):
                 client.chat([{"role": "user", "content": "hello"}])
 
+    def test_local_only_rejects_loopback_web_proxy(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            client = EvolutionEgressClient(InnerClient(backend="kitt-proxy", base_url="http://127.0.0.1:3000"), root_dir=Path(tmp), privacy_mode="local_only")
+            with self.assertRaises(PermissionError):
+                client.chat([{"role": "user", "content": "hello"}])
+
     def test_local_only_accepts_loopback_ollama(self):
         with tempfile.TemporaryDirectory() as tmp:
             client = EvolutionEgressClient(

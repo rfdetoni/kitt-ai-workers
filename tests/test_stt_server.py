@@ -15,6 +15,18 @@ from kitt_workers.stt_server import (
 
 
 class TestSttServer(unittest.TestCase):
+    def test_tempfile_failure_releases_transcription_lock(self):
+        from unittest.mock import patch
+        from types import SimpleNamespace
+        body = b"audio"
+        replies = []
+        handler = SimpleNamespace(path="/v1/audio/transcriptions", headers={"Content-Type": "multipart/form-data; boundary=x", "Content-Length": "5"}, rfile=io.BytesIO(body), _send_json=lambda status, payload, **kwargs: replies.append(status))
+        with patch.object(stt_server, "_engine_ready", return_value=True), patch.object(stt_server, "_parse_multipart", return_value=(body, "pt", "model", "")), patch.object(stt_server.tempfile, "NamedTemporaryFile", side_effect=OSError("disk full")):
+            stt_server.LocalSTTRequestHandler.do_POST(handler)
+            self.assertEqual(replies, [500])
+            self.assertTrue(stt_server._TRANSCRIPTION_LOCK.acquire(blocking=False))
+            stt_server._TRANSCRIPTION_LOCK.release()
+
     def test_parse_multipart_extracts_fields(self):
         boundary = "----WebKitFormBoundary7MA4YWxkTrZu0gW"
         content_type = f"multipart/form-data; boundary={boundary}"
