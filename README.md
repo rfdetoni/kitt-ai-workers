@@ -1,5 +1,9 @@
 # K.I.T.T. AI Workers
 
+## Release 0.1.44 — align the locked Agent consumer
+
+Evolution and Evals now lock Agent CLI 0.83.18 at its validated main revision. Frozen environments include the managed Reverse Proxy endpoint-trust correction. All three worker package and editable-lock versions agree at 0.1.44; other dependencies and Protocol revisions remain unchanged. See [release notes](docs/RELEASE_0.1.44.md).
+
 ## Release 0.1.43 — execution boundary hardening
 
 Make retrieval ablations exercise graph-disabled, graph-enabled and lexical feature reranking stages before selection. Add a real indexed dependency-neighbor case, per-case latency/token costs and stage diagnostics. Replace misleading small-model/large-direct labels with `hybrid_graph_lexical_rerank` and `single_lexical_hit`. Synthetic lexical embeddings do not represent model quality. The fixture shows 5/6 structural versus 6/6 graph recall@5; lexical reranking remains optional and is not promoted.
