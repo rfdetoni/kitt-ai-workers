@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.43 — 2026-10-06
+
+- Make retrieval ablations exercise graph-disabled, graph-enabled and lexical feature reranking stages before selection. Add a real indexed dependency-neighbor case, per-case latency/token costs and stage diagnostics. Replace misleading small-model/large-direct labels with `hybrid_graph_lexical_rerank` and `single_lexical_hit`. Synthetic lexical embeddings do not represent model quality. The fixture shows 5/6 structural versus 6/6 graph recall@5; lexical reranking remains optional and is not promoted.
+
 ## 0.1.42 — 2026-10-02
 
 - Always release the STT transcription lock and clean up a created temporary file when file creation/write fails.

@@ -1,5 +1,11 @@
 # K.I.T.T. AI Workers
 
+## Release 0.1.43 — execution boundary hardening
+
+Make retrieval ablations exercise graph-disabled, graph-enabled and lexical feature reranking stages before selection. Add a real indexed dependency-neighbor case, per-case latency/token costs and stage diagnostics. Replace misleading small-model/large-direct labels with `hybrid_graph_lexical_rerank` and `single_lexical_hit`. Synthetic lexical embeddings do not represent model quality. The fixture shows 5/6 structural versus 6/6 graph recall@5; lexical reranking remains optional and is not promoted.
+
+See [release notes](docs/RELEASE_0.1.43.md).
+
 <p align="center">
   <strong>Isolated AI/ML workloads, evaluation and staged self-evolution for K.I.T.T.</strong><br>
   On-demand workers · local STT · Evolution · Evals · bounded NDJSON execution
