@@ -1,5 +1,9 @@
 # K.I.T.T. AI Workers
 
+## Release 0.1.45 — unified model selection endpoint trust
+
+Evolution and Evals lock Agent CLI 0.83.19, including the authenticated/pending and local/no-auth model picker correction. All three package/editable-lock versions agree at 0.1.45. See [release notes](docs/RELEASE_0.1.45.md).
+
 ## Release 0.1.44 — align the locked Agent consumer
 
 Evolution and Evals now lock Agent CLI 0.83.18 at its validated main revision. Frozen environments include the managed Reverse Proxy endpoint-trust correction. All three worker package and editable-lock versions agree at 0.1.44; other dependencies and Protocol revisions remain unchanged. See [release notes](docs/RELEASE_0.1.44.md).
