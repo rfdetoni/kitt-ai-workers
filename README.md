@@ -1,5 +1,9 @@
 # K.I.T.T. AI Workers
 
+## Release 0.1.52 — Agent CLI 0.84.6 alignment
+
+AI Workers, Evals and Evolution now lock Agent CLI **0.84.6** revision `0f14d68b5fbdd6848660f68707230d7d6c3db584`. This carries the complete Goals/TaskPlan verification-ownership correction into evaluation/evolution environments. Worker behavior and shared Protocol remain unchanged. See [release notes](docs/RELEASE_0.1.52.md).
+
 ## Release 0.1.51 — Agent CLI 0.84.5 loop alignment
 
 AI Workers, Evals and Evolution now lock Agent CLI **0.84.5** revision `fc4646c98b2b55af8a992798440e079f8d3da124`. This carries the durable GOAL-contract completion-ownership correction into evaluation/evolution environments without changing worker behavior or shared Protocol contracts. See [release notes](docs/RELEASE_0.1.51.md).
