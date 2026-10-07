@@ -1,5 +1,9 @@
 # K.I.T.T. AI Workers
 
+## Release 0.1.49 — Agent CLI 0.84.3 consumer alignment
+
+Evolution and Evals now lock Agent CLI **0.84.3** at its validated main revision. Base worker, Evolution and Evals package metadata move together to **0.1.49**. Worker protocols and KITT Protocol remain unchanged.
+
 ## Release 0.1.48 — Agent CLI 0.84.2 consumer alignment
 
 Evolution and Evals now lock Agent CLI **0.84.2** at its validated main revision. Base worker, Evolution and Evals package metadata move together to **0.1.48**. Worker protocols and KITT Protocol remain unchanged.
