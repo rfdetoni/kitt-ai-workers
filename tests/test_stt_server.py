@@ -15,6 +15,29 @@ from kitt_workers.stt_server import (
 
 
 class TestSttServer(unittest.TestCase):
+    def test_local_only_fallback_never_asks_whisper_to_download(self):
+        import sys
+        import tempfile
+        from pathlib import Path
+        from types import SimpleNamespace
+        from unittest.mock import Mock, patch
+        loader = Mock(return_value=object())
+        with tempfile.TemporaryDirectory() as tmp, patch.dict(sys.modules, {
+            "faster_whisper": None, "whisper": SimpleNamespace(load_model=loader),
+        }), patch.object(stt_server, "_WHISPER_MODEL_INSTANCE", None), patch.object(
+            stt_server, "_ENGINE_NAME", "none"
+        ), patch.object(stt_server, "_detect_stt_device", return_value=("cpu", "float32")), patch.dict(
+            stt_server.os.environ, {"XDG_CACHE_HOME": tmp}
+        ):
+            with self.assertRaises(FileNotFoundError):
+                stt_server.get_whisper_engine("tiny", local_files_only=True)
+            loader.assert_not_called()
+            checkpoint = Path(tmp) / "whisper" / "tiny.pt"
+            checkpoint.parent.mkdir()
+            checkpoint.write_bytes(b"local checkpoint")
+            stt_server.get_whisper_engine("tiny", local_files_only=True)
+            self.assertEqual(loader.call_args.args, (str(checkpoint.resolve()),))
+
     def test_tempfile_failure_releases_transcription_lock(self):
         from unittest.mock import patch
         from types import SimpleNamespace

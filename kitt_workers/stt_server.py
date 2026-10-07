@@ -17,6 +17,7 @@ import threading
 import time
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
 from typing import Any
 
 _WHISPER_MODEL_INSTANCE: Any = None
@@ -211,7 +212,9 @@ def get_whisper_engine(
                 print(f"[STT] Local file lookup for model '{model_name}' failed with local_files_only=True: {exc}", flush=True)
                 raise
             else:
-                _WHISPER_MODEL_INSTANCE = WhisperModel(model_name, device="cpu", compute_type="float32")
+                kwargs["device"] = "cpu"
+                kwargs["compute_type"] = "float32"
+                _WHISPER_MODEL_INSTANCE = WhisperModel(model_name, **kwargs)
 
         _ENGINE_NAME = f"faster-whisper ({model_name})"
         actual_device = getattr(getattr(_WHISPER_MODEL_INSTANCE, "model", None), "device", target_device)
@@ -223,13 +226,26 @@ def get_whisper_engine(
     try:
         import whisper
 
+        checkpoint = model_name
+        if local_files_only:
+            candidate = Path(model_name).expanduser()
+            if not candidate.is_file():
+                cache = Path(os.environ.get("XDG_CACHE_HOME", str(Path.home() / ".cache")))
+                candidate = cache / "whisper" / f"{model_name}.pt"
+            if not candidate.is_file():
+                raise FileNotFoundError(
+                    f"Local Whisper checkpoint unavailable for '{model_name}'; "
+                    "provide a checkpoint path or explicitly allow model downloads."
+                )
+            checkpoint = str(candidate.resolve())
+
         print(f"[STT] Loading local openai-whisper model: '{model_name}' (device={target_device})...", flush=True)
         try:
-            _WHISPER_MODEL_INSTANCE = whisper.load_model(model_name, device=target_device if target_device != "auto" else None)
+            _WHISPER_MODEL_INSTANCE = whisper.load_model(checkpoint, device=target_device if target_device != "auto" else None)
         except Exception as exc:
             if target_device != "cpu":
                 print(f"[STT] OpenAI-Whisper initialization failed on '{target_device}': {exc}. Retrying on CPU...", flush=True)
-                _WHISPER_MODEL_INSTANCE = whisper.load_model(model_name, device="cpu")
+                _WHISPER_MODEL_INSTANCE = whisper.load_model(checkpoint, device="cpu")
             else:
                 raise
         _ENGINE_NAME = f"whisper ({model_name})"

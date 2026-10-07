@@ -1,5 +1,11 @@
 # K.I.T.T. AI Workers
 
+## Release 0.1.55 — Local-only STT fallback
+
+The openai-whisper fallback resolves an existing checkpoint path when local_files_only is enabled and fails before invoking its download-capable loader when absent. CPU retries preserve the faster-whisper local-only and worker/thread options. Workers, Evals and Evolution align their Agent and Protocol locks with this ecosystem release.
+
+See [release notes](docs/RELEASE_0.1.55.md).
+
 ## Release 0.1.54 — Agent CLI 0.84.8 alignment
 
 AI Workers, Evals and Evolution now lock Agent CLI **0.84.8** revision `809151b40ef4600c8364c73583bd38717b1665cf`. This carries the durable-contract live-progress and bounded memory-context behavior into evaluation/evolution environments. Worker behavior and shared Protocol remain unchanged. See [release notes](docs/RELEASE_0.1.54.md).
