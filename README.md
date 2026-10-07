@@ -1,5 +1,9 @@
 # K.I.T.T. AI Workers
 
+## Release 0.1.46 — Agent CLI 0.84 consumer alignment
+
+Evolution and Evals now lock Agent CLI **0.84.0** at its validated main revision. The base worker, Evolution and Evals package versions move together to **0.1.46**; worker protocols and KITT Protocol dependencies are unchanged. See [release notes](docs/RELEASE_0.1.46.md).
+
 ## Release 0.1.45 — unified model selection endpoint trust
 
 Evolution and Evals lock Agent CLI 0.83.19, including the authenticated/pending and local/no-auth model picker correction. All three package/editable-lock versions agree at 0.1.45. See [release notes](docs/RELEASE_0.1.45.md).
