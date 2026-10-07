@@ -1,5 +1,9 @@
 # K.I.T.T. AI Workers
 
+## Release 0.1.53 — Agent CLI 0.84.7 alignment
+
+AI Workers, Evals and Evolution now lock Agent CLI **0.84.7** revision `f9c07452dd211359e754c2b9a1eb54e3854c41a1`. This carries the first-prompt TUI visibility fix into evaluation/evolution environments. Worker behavior and shared Protocol remain unchanged. See [release notes](docs/RELEASE_0.1.53.md).
+
 ## Release 0.1.52 — Agent CLI 0.84.6 alignment
 
 AI Workers, Evals and Evolution now lock Agent CLI **0.84.6** revision `0f14d68b5fbdd6848660f68707230d7d6c3db584`. This carries the complete Goals/TaskPlan verification-ownership correction into evaluation/evolution environments. Worker behavior and shared Protocol remain unchanged. See [release notes](docs/RELEASE_0.1.52.md).
