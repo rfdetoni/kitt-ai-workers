@@ -1,5 +1,9 @@
 # K.I.T.T. AI Workers
 
+## Release 0.1.51 — Agent CLI 0.84.5 loop alignment
+
+AI Workers, Evals and Evolution now lock Agent CLI **0.84.5** revision `fc4646c98b2b55af8a992798440e079f8d3da124`. This carries the durable GOAL-contract completion-ownership correction into evaluation/evolution environments without changing worker behavior or shared Protocol contracts. See [release notes](docs/RELEASE_0.1.51.md).
+
 ## Release 0.1.50 — Agent CLI 0.84.4 alignment
 
 AI Workers, Evals and Evolution now lock the validated Agent CLI **0.84.4** revision `fc985bc6d842d3c684ad1188ff2fc8a0c427e6a8`. No worker behavior or shared protocol changed; this is the minimal immutable-consumer alignment for the durable-loop hardening release. See [release notes](docs/RELEASE_0.1.50.md).
