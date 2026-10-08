@@ -1,5 +1,11 @@
 # K.I.T.T. AI Workers
 
+## Release 0.1.56 — Contract review dependency alignment
+
+Evals and Evolution locks select Agent CLI 0.84.10 for bounded high-risk contract review on 8K reverse-proxy profiles.
+
+See [release notes](docs/RELEASE_0.1.56.md).
+
 ## Release 0.1.55 — Local-only STT fallback
 
 The openai-whisper fallback resolves an existing checkpoint path when local_files_only is enabled and fails before invoking its download-capable loader when absent. CPU retries preserve the faster-whisper local-only and worker/thread options. Workers, Evals and Evolution align their Agent and Protocol locks with this ecosystem release.

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.56 — 2026-10-08
+
+Align Evals and Evolution locks with Agent CLI 0.84.10 for the high-risk contract-review context fix.
+
 ## 0.1.55 — 2026-10-07
 
 The openai-whisper fallback resolves an existing checkpoint path when local_files_only is enabled and fails before invoking its download-capable loader when absent. CPU retries preserve the faster-whisper local-only and worker/thread options. Workers, Evals and Evolution align their Agent and Protocol locks with this ecosystem release.
