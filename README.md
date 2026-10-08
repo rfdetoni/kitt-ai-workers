@@ -1,3 +1,7 @@
+## Release 0.1.57 — Structured Agent result composition
+
+Workers, Evals and Evolution locks align Agent 0.85.0 and Protocol 0.10.0. No worker execution behavior or new dependency is introduced. See [release notes](docs/RELEASE_0.1.57.md).
+
 # K.I.T.T. AI Workers
 
 ## Release 0.1.56 — WebChat token ownership alignment
