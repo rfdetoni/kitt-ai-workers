@@ -1,8 +1,8 @@
 # K.I.T.T. AI Workers
 
-## Release 0.1.56 — Contract review dependency alignment
+## Release 0.1.56 — WebChat token ownership alignment
 
-Evals and Evolution locks select Agent CLI 0.84.10 for bounded high-risk contract review on 8K reverse-proxy profiles.
+Evals and Evolution locks select Agent CLI 0.84.10, which delegates reverse-proxy input/output token limits to WebChat.
 
 See [release notes](docs/RELEASE_0.1.56.md).
 

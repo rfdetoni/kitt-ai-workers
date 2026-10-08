@@ -1,5 +1,5 @@
-# kitt-ai-workers, Evals and Evolution 0.1.56 — Contract review compatibility
+# kitt-ai-workers, Evals and Evolution 0.1.56 — WebChat token ownership alignment
 
-Evals and Evolution lock Agent CLI 0.84.10 (`9b2181dbff0c24cbf61a3ca4ca6c43d06fabe447`). Runtime behavior and Protocol/STT dependencies retain their current contracts; the version bump records the compatible composition.
+Evals and Evolution lock Agent CLI 0.84.10 (`0a06eac924162a063945384ae79e30e5384689f9`), which delegates reverse-proxy token limits to WebChat. Protocol/STT contracts retain their current behavior.
 
-Validation uses the worker protocol/STT, Evolution security/promotion and evaluation suites with the updated Agent dependency.
+Validation: 33 worker protocol/STT, Evolution security/promotion and evaluation tests passed with the updated Agent dependency.

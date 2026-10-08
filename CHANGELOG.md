@@ -2,7 +2,7 @@
 
 ## 0.1.56 — 2026-10-08
 
-Align Evals and Evolution locks with Agent CLI 0.84.10 for the high-risk contract-review context fix.
+Align Evals and Evolution locks with Agent CLI 0.84.10 for WebChat token ownership.
 
 ## 0.1.55 — 2026-10-07
 
