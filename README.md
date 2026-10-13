@@ -1,3 +1,7 @@
+## Contract sync 0.1.58
+
+Update the shared kitt-protocol SDK pin to 0.12.0 for compact KAP/2 structured final decoding. Worker service and existing IPC JSON contracts remain unchanged.
+
 ## Release 0.1.57 — Structured Agent result composition
 
 Workers, Evals and Evolution locks align Agent 0.85.0 and Protocol 0.10.0. No worker execution behavior or new dependency is introduced. See [release notes](docs/RELEASE_0.1.57.md).
