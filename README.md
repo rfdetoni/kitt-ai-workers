@@ -1,3 +1,7 @@
+## 0.1.60 — Protocol 0.13.1 lock
+
+Worker dependencies are synchronized with KAP/2 SDK hardening; existing worker IPC remains unchanged.
+
 ## 0.1.59 — shared KAP/2 protocol lock
 
 The worker environment is pinned to Protocol 0.12.1. Existing worker IPC/JSON behavior is unchanged.
