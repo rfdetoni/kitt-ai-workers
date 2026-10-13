@@ -1,3 +1,7 @@
+## 0.1.59 — shared KAP/2 protocol lock
+
+The worker environment is pinned to Protocol 0.12.1. Existing worker IPC/JSON behavior is unchanged.
+
 ## Contract sync 0.1.58
 
 Update the shared kitt-protocol SDK pin to 0.12.0 for compact KAP/2 structured final decoding. Worker service and existing IPC JSON contracts remain unchanged.
