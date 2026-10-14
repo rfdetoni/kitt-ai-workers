@@ -1,3 +1,7 @@
+## AI Workers 0.1.66 — hybrid-memory Agent pin
+
+The Evals and Evolution Python consumers now pin Agent CLI **0.87.19** at immutable SHA `fed07a745c58ad8c286cba1230ebce9afe413170`, enabling optional local Ollama vector-memory search when paired with kitt-memory 0.10.0. Their package versions and uv locks are synchronized; no worker, protocol or runtime behavior is changed. See [release notes](docs/RELEASE_0.1.66.md).
+
 ## AI Workers 0.1.65 — aligned evaluation and evolution consumers
 
 The Evals and Evolution Python locks now consume Agent CLI 0.87.18 at immutable commit `7d8e821352964addb9ab25acef8aa9f96f3461f6`; the base workers package and both optional packages are versioned 0.1.65. Worker NDJSON, STT, and Protocol semantics are unchanged. See [release notes](docs/RELEASE_0.1.65.md).
