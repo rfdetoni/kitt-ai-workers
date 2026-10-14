@@ -1,3 +1,8 @@
+## 0.1.65 — Agent performance consumer pins
+
+- Align Evals/Evolution Agent CLI locks with 0.87.18 (`7d8e821352964addb9ab25acef8aa9f96f3461f6`).
+- Bump workers and optional packages to 0.1.65; preserve existing Protocol, evaluation and worker behavior.
+
 # Changelog
 
 ## 0.1.56 — 2026-10-08

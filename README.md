@@ -1,3 +1,7 @@
+## AI Workers 0.1.65 — aligned evaluation and evolution consumers
+
+The Evals and Evolution Python locks now consume Agent CLI 0.87.18 at immutable commit `7d8e821352964addb9ab25acef8aa9f96f3461f6`; the base workers package and both optional packages are versioned 0.1.65. Worker NDJSON, STT, and Protocol semantics are unchanged. See [release notes](docs/RELEASE_0.1.65.md).
+
 ## AI Workers 0.1.64 / Evals + Evolution 0.1.61 — KAP/2 host-tool bridge
 
 Pins Agent CLI **0.87.13** at commit `d50e3fe6aa4258fa24e2c69645968f6c845c18a0` to deliver canonical KAP/2 `K2 T` host-tool requests in durable Goals. All other Protocol and native dependencies retain their existing versions.
