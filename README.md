@@ -1,3 +1,10 @@
+## AI Workers 0.1.62 / Evals + Evolution 0.1.59 — compact KAP/2 locks
+
+Root and subpackage uv locks pin Protocol 0.13.3 and Agent CLI 0.87.11.
+These versions add an explicit indentation-free KAP/2 structured final
+for long plans. No AI Worker execution or security behavior changes.
+See [release 0.1.62](docs/RELEASE_0.1.62.md).
+
 ## AI Workers 0.1.61 / Evals + Evolution 0.1.58 — KAP/2 Python lock alignment
 
 Python locks now resolve Agent CLI **0.87.10** with the restricted KAP/2
