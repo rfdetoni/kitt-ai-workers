@@ -1,3 +1,10 @@
+## AI Workers 0.1.61 / Evals + Evolution 0.1.58 — KAP/2 Python lock alignment
+
+Python locks now resolve Agent CLI **0.87.10** with the restricted KAP/2
+`sandbox.python` operation and Protocol **0.13.2**. This corrects stale
+Evals/Evolution development lock revisions without changing worker runtime
+behavior. See [release 0.1.61](docs/RELEASE_0.1.61.md).
+
 ## 0.1.60 — Protocol 0.13.1 lock
 
 Worker dependencies are synchronized with KAP/2 SDK hardening; existing worker IPC remains unchanged.
