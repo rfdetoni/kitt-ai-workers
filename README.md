@@ -1,10 +1,13 @@
+# AI Workers / Evals / Evolution 0.1.77 — JSON ecosystem
+
+Align Protocol and Agent locks with the JSON-only model wire migration. Workers continue to use typed host contracts; model-generated plans, validation, review and tool requests use the Agent CLI JSON pipeline. No KAP parser is imported by the application.
+
+
+[Release details](docs/RELEASE_0.1.77.md).
+
 ## AI Workers v0.1.75 — Agent CLI v0.87.29 semantic integration
 
 Pin shared Agent CLI revision `cb530c2ecddaafa1241e957c3d379ea853f43863` (v0.87.29) in Evolution/Evals locks, and validate all uv locks in CI. No new runtime or generative-model dependency. [Release notes](docs/RELEASE_0.1.75.md).
-
-## AI Workers 0.1.74 — no automatic WebChat capture replay
-
-Evals and Evolution now pin Agent CLI **0.87.28** at `f5eaff224b80c02ceaaf390bc3b84e0943d95abf`, which blocks ambiguous submitted browser turns pending operator inspection rather than resending a potentially completed unseen KAP response. Python package versions and affected locks are synchronized. [Release details](docs/RELEASE_0.1.74.md).
 
 ## AI Workers 0.1.73 — Agent live planning feedback compatibility
 
@@ -41,40 +44,6 @@ The Evals and Evolution Python consumers now pin Agent CLI **0.87.19** at immuta
 ## AI Workers 0.1.65 — aligned evaluation and evolution consumers
 
 The Evals and Evolution Python locks now consume Agent CLI 0.87.18 at immutable commit `7d8e821352964addb9ab25acef8aa9f96f3461f6`; the base workers package and both optional packages are versioned 0.1.65. Worker NDJSON, STT, and Protocol semantics are unchanged. See [release notes](docs/RELEASE_0.1.65.md).
-
-## AI Workers 0.1.64 / Evals + Evolution 0.1.61 — KAP/2 host-tool bridge
-
-Pins Agent CLI **0.87.13** at commit `d50e3fe6aa4258fa24e2c69645968f6c845c18a0` to deliver canonical KAP/2 `K2 T` host-tool requests in durable Goals. All other Protocol and native dependencies retain their existing versions.
-
-## AI Workers 0.1.63 / Evals + Evolution 0.1.60 — Goals KAP/2 host-action contract
-
-The Python consumer pins Agent CLI **0.87.12** at immutable SHA `4b955a82633fccc4ba6ffef3c97703b1dfda0916`, which requires authorized host-tool execution before a durable Goals K2 F completion report. The update does not change Protocol 0.13.3, the assistant native runtime or any host permissions.
-
-## AI Workers 0.1.62 / Evals + Evolution 0.1.59 — compact KAP/2 locks
-
-Root and subpackage uv locks pin Protocol 0.13.3 and Agent CLI 0.87.11.
-These versions add an explicit indentation-free KAP/2 structured final
-for long plans. No AI Worker execution or security behavior changes.
-See [release 0.1.62](docs/RELEASE_0.1.62.md).
-
-## AI Workers 0.1.61 / Evals + Evolution 0.1.58 — KAP/2 Python lock alignment
-
-Python locks now resolve Agent CLI **0.87.10** with the restricted KAP/2
-`sandbox.python` operation and Protocol **0.13.2**. This corrects stale
-Evals/Evolution development lock revisions without changing worker runtime
-behavior. See [release 0.1.61](docs/RELEASE_0.1.61.md).
-
-## 0.1.60 — Protocol 0.13.1 lock
-
-Worker dependencies are synchronized with KAP/2 SDK hardening; existing worker IPC remains unchanged.
-
-## 0.1.59 — shared KAP/2 protocol lock
-
-The worker environment is pinned to Protocol 0.12.1. Existing worker IPC/JSON behavior is unchanged.
-
-## Contract sync 0.1.58
-
-Update the shared kitt-protocol SDK pin to 0.12.0 for compact KAP/2 structured final decoding. Worker service and existing IPC JSON contracts remain unchanged.
 
 ## Release 0.1.57 — Structured Agent result composition
 
