@@ -1,3 +1,7 @@
+## AI Workers 0.1.70 — specialist Agent compatibility
+
+Evals and Evolution pin Agent CLI **0.87.23** at `4e643b11f00902d7afc7ee2e6315b4724cfec4f4`, adding the declarative multi-agent profiles and host-governed messaging. Root/package versions and Python locks are synchronized; worker runtime behavior is unchanged. See [release notes](docs/RELEASE_0.1.70.md).
+
 ## AI Workers 0.1.69 — indexed Agent CLI consumer pins
 
 Evals/Evolution now pin Agent CLI 0.87.22 (`7a010b2dfba3e3356b7b49aeb32186b69605df7f`) for targeted graph updates and indexed lexical routing; project and uv.lock versions are synchronized. [Release notes](docs/RELEASE_0.1.69.md).
