@@ -379,3 +379,7 @@ Evolution and Evals pin Agent CLI 0.78.9 revision `f06e4d6990228aae6283042e4c8b9
 ## AI Workers 0.1.39 — main-first sibling dependencies
 
 Evolution and Evals now depend on `kitt-agent-cli@main` instead of a cross-repository commit SHA. The ecosystem installer resolves sibling `main` branches together and records the exact installed SHAs as runtime provenance.
+
+### Release 0.1.76: local multilingual lexical resources
+
+AI Workers 0.1.76 aligns root, Evolution and Evals uv locks with Agent CLI 0.87.30 immutable main SHA 383ffa5bb5c82f8c43f3db82127c41e2e8c6678f. This is a dependency alignment only; offline semantic lexicon is opt-in and does not add a mandatory Ollama, NLP library or corpus dependency. [Release notes](docs/RELEASE_0.1.76.md).
