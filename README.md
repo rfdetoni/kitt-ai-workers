@@ -1,3 +1,7 @@
+## AI Workers 0.1.73 — Agent live planning feedback compatibility
+
+Evals/Evolution pin Agent CLI **0.87.27** at `33c83bbb6b05d06ea4dc91020ac9d7e2f78dfed3`, including truthful planning/review TUI stage and elapsed provider wait. Package metadata and all uv locks are synchronized. [Release note](docs/RELEASE_0.1.73.md).
+
 ## AI Workers 0.1.72 — Agent contract reviewer convergence
 
 Evals/Evolution now pin Agent CLI **0.87.26** at `cea70a4227b3ba66455ef968cddcbc3468f65e61`, keeping planner FINAL criteria/dependencies independent of per-task verifications and preventing repeated REVISE loops on complex missions. All package versions and uv locks are synchronized. [Release note](docs/RELEASE_0.1.72.md).
