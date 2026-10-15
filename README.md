@@ -1,3 +1,7 @@
+## AI Workers 0.1.68 — Agent CLI 0.87.21 consumer alignment
+
+Evals and Evolution now consume Agent CLI 0.87.21 (`872c7f89d6a9dcce8e014b9141ee507fb9d234e3`) with nonblocking SQLite index reconciliation. Package metadata and uv.lock are synchronized; STT and wire contracts are unchanged. [Release notes](docs/RELEASE_0.1.68.md).
+
 ## AI Workers 0.1.67 — guarded vector memory consumer pins
 
 Evals and Evolution now pin Agent CLI 0.87.20 at immutable commit `bae99751b082523bc3d44bc26f249f085a25fc3a`, allowing concurrent-memory updates and bounded durable-source vector backfill with Memory 0.10.2. Workspace versions and uv locks are aligned. No change to STT or the shared Protocol. [Release notes](docs/RELEASE_0.1.67.md).
