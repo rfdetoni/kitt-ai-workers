@@ -1,3 +1,7 @@
+## AI Workers v0.1.75 — Agent CLI v0.87.29 semantic integration
+
+Pin shared Agent CLI revision `cb530c2ecddaafa1241e957c3d379ea853f43863` (v0.87.29) in Evolution/Evals locks, and validate all uv locks in CI. No new runtime or generative-model dependency. [Release notes](docs/RELEASE_0.1.75.md).
+
 ## AI Workers 0.1.74 — no automatic WebChat capture replay
 
 Evals and Evolution now pin Agent CLI **0.87.28** at `f5eaff224b80c02ceaaf390bc3b84e0943d95abf`, which blocks ambiguous submitted browser turns pending operator inspection rather than resending a potentially completed unseen KAP response. Python package versions and affected locks are synchronized. [Release details](docs/RELEASE_0.1.74.md).
