@@ -223,7 +223,7 @@ wheels = [
 
 [[package]]
 name = "kitt-ai-workers"
-version = "0.1.66"
+version = "0.1.67"
 source = { editable = "." }
 dependencies = [
     { name = "kitt-protocol" },

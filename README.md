@@ -1,3 +1,7 @@
+## AI Workers 0.1.67 — guarded vector memory consumer pins
+
+Evals and Evolution now pin Agent CLI 0.87.20 at immutable commit `bae99751b082523bc3d44bc26f249f085a25fc3a`, allowing concurrent-memory updates and bounded durable-source vector backfill with Memory 0.10.2. Workspace versions and uv locks are aligned. No change to STT or the shared Protocol. [Release notes](docs/RELEASE_0.1.67.md).
+
 ## AI Workers 0.1.66 — hybrid-memory Agent pin
 
 The Evals and Evolution Python consumers now pin Agent CLI **0.87.19** at immutable SHA `5d6f6b2ac4a10826ab7b551694146928e06f2023`, enabling optional local Ollama vector-memory search when paired with kitt-memory 0.10.0. Their package versions and uv locks are synchronized; no worker, protocol or runtime behavior is changed. See [release notes](docs/RELEASE_0.1.66.md).
