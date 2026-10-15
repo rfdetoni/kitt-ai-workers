@@ -1,6 +1,6 @@
 ## AI Workers 0.1.71 — independently routed specialist models
 
-Evals and Evolution now pin Agent CLI **0.87.25** at `51c00288f4a63eee66a977ca67a9fd58961828c7`, which supports per-worker TaskRouter model policies, direct providers and reverse-proxy instances with privacy-filtered failovers. Python package versions and all affected uv locks are aligned. See [release notes](docs/RELEASE_0.1.71.md).
+Evals and Evolution now pin Agent CLI **0.87.25** at `4138895c84b673c8dfef54ddb8f7276ee4ca1eb4`, which supports per-worker TaskRouter model policies, direct providers and reverse-proxy instances with privacy-filtered failovers. Python package versions and all affected uv locks are aligned. See [release notes](docs/RELEASE_0.1.71.md).
 
 ## AI Workers 0.1.70 — specialist Agent compatibility
 
