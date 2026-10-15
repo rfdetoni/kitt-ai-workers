@@ -1,3 +1,7 @@
+## AI Workers 0.1.69 — indexed Agent CLI consumer pins
+
+Evals/Evolution now pin Agent CLI 0.87.22 (`7a010b2dfba3e3356b7b49aeb32186b69605df7f`) for targeted graph updates and indexed lexical routing; project and uv.lock versions are synchronized. [Release notes](docs/RELEASE_0.1.69.md).
+
 ## AI Workers 0.1.68 — Agent CLI 0.87.21 consumer alignment
 
 Evals and Evolution now consume Agent CLI 0.87.21 (`872c7f89d6a9dcce8e014b9141ee507fb9d234e3`) with nonblocking SQLite index reconciliation. Package metadata and uv.lock are synchronized; STT and wire contracts are unchanged. [Release notes](docs/RELEASE_0.1.68.md).
