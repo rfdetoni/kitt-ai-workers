@@ -1,6 +1,6 @@
 # K.I.T.T. AI Workers
 
-Versão **0.1.80**. Documentação de instalação, arquitetura e operação. [Changelog](CHANGELOG.md) · [Notas atuais](docs/RELEASE_0.1.80.md).
+Versão **0.1.81**. Documentação de instalação, arquitetura e operação. [Changelog](CHANGELOG.md) · [Notas atuais](docs/RELEASE_0.1.81.md).
 
 ## What’s included
 
