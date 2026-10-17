@@ -1,3 +1,7 @@
+# AI Workers 0.1.80 — Clean-Room Agent dependency alignment
+
+Evals/Evolution locks pin Agent 0.88.10 and Protocol 0.14.1. [Release notes](docs/RELEASE_0.1.80.md).
+
 # AI Workers 0.1.79 — Clean-Room ecosystem alignment
 
 Locks Agent 0.88.9 and Protocol 0.14.1 for the Evals/Evolution consumers without adding new worker execution authority. [Release notes](docs/RELEASE_0.1.79.md).
