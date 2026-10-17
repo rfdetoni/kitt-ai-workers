@@ -223,7 +223,7 @@ wheels = [
 
 [[package]]
 name = "kitt-ai-workers"
-version = "0.1.80"
+version = "0.1.81"
 source = { editable = "." }
 dependencies = [
     { name = "kitt-protocol" },
@@ -243,8 +243,8 @@ provides-extras = ["stt"]
 
 [[package]]
 name = "kitt-protocol"
-version = "0.14.1"
-source = { git = "https://github.com/rfdetoni/kitt-protocol.git?subdirectory=sdk%2Fpython&rev=main#4df5fedcbfdfd86e12a187a2549354d36e966d8e" }
+version = "0.14.2"
+source = { git = "https://github.com/rfdetoni/kitt-protocol.git?subdirectory=sdk%2Fpython&rev=main#ac9baf8b4b8f03e839471c7bbb7d5e52e970a9ec" }
 
 [[package]]
 name = "numpy"
