@@ -1,5 +1,9 @@
 # Changelog — K.I.T.T. AI Workers
 
+## 0.1.81 — Align Clean-Room Agent/Protocol consumer pins
+
+Evals/Evolution and Workers locks resolve Agent CLI 0.88.11 and Protocol 0.14.2, with no new runtime authority. [Release notes](docs/RELEASE_0.1.81.md).
+
 ## Notas de versão migradas do README
 
 ## AI Workers 0.1.80 — Clean-Room Agent dependency alignment
