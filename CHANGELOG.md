@@ -1,5 +1,9 @@
 # Changelog — K.I.T.T. AI Workers
 
+## 0.1.82 — Agent 0.88.12 dependency alignment
+
+Pins RE guest MCP-capable Agent CLI 0.88.12 in Evals/Evolution and all relevant uv locks. No worker authority changes. [Notas](docs/RELEASE_0.1.82.md).
+
 ## 0.1.81 — Align Clean-Room Agent/Protocol consumer pins
 
 Evals/Evolution and Workers locks resolve Agent CLI 0.88.11 and Protocol 0.14.2, with no new runtime authority. [Release notes](docs/RELEASE_0.1.81.md).
