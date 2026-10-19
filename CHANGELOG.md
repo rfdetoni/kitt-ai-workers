@@ -1,5 +1,9 @@
 # Changelog — K.I.T.T. AI Workers
 
+## 0.1.83 — Wine Staging Agent 0.88.13 pinned
+
+Workers, Evals and Evolution pin Agent 0.88.13 with WineHQ Staging guest image 0.86.11; uv locks aligned. [Release notes](docs/RELEASE_0.1.83.md).
+
 ## 0.1.82 — Agent 0.88.12 dependency alignment
 
 Pins RE guest MCP-capable Agent CLI 0.88.12 in Evals/Evolution and all relevant uv locks. No worker authority changes. [Notas](docs/RELEASE_0.1.82.md).
