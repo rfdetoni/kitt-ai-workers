@@ -62,5 +62,19 @@ class WorkerProtocolTest(unittest.TestCase):
         self.assertEqual("worker-1", response.correlation_id)
 
 
+class WorkerBenchmarkTest(unittest.TestCase):
+    def test_metrics_report_verified_correlated_responses(self):
+        from kitt_workers.benchmark import run
+
+        result = run(20, 128)
+        self.assertEqual(result["jobs"], 20)
+        self.assertGreater(result["response_bytes"], 20 * 128)
+        self.assertGreater(result["jobs_per_second"], 0)
+        self.assertGreater(result["python_peak_bytes"], 0)
+        self.assertGreaterEqual(result["latency_p95_ms"], result["latency_p50_ms"])
+        with self.assertRaises(ValueError):
+            run(10001, 128)
+
+
 if __name__ == "__main__":
     unittest.main()
