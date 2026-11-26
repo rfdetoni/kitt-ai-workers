@@ -253,18 +253,53 @@ class TestSttServer(unittest.TestCase):
         self.assertIn("duration_ms", result)
 
     def test_detect_stt_device_resolution(self):
-        dev, compute = stt_server._detect_stt_device("cpu")
-        self.assertEqual(dev, "cpu")
-        self.assertEqual(compute, "float32")
+        import sys
+        from types import SimpleNamespace
+        from unittest.mock import patch
 
-        dev, compute = stt_server._detect_stt_device("cpu", "int8")
+        dev, compute = stt_server._detect_stt_device("cpu")
         self.assertEqual(dev, "cpu")
         self.assertEqual(compute, "int8")
 
-        # Auto detection should resolve to either cuda or cpu gracefully without throwing
+        dev, compute = stt_server._detect_stt_device("cpu", "float32")
+        self.assertEqual(dev, "cpu")
+        self.assertEqual(compute, "float32")
+
+        fake_rocm_torch = SimpleNamespace(
+            version=SimpleNamespace(hip="6.2"),
+            cuda=SimpleNamespace(
+                is_available=lambda: True,
+                device_count=lambda: 1,
+                mem_get_info=lambda _idx=0: (2 * 1024**3, 8 * 1024**3),
+            ),
+            xpu=SimpleNamespace(is_available=lambda: False),
+            backends=SimpleNamespace(mps=None),
+        )
+        with patch.dict(sys.modules, {"torch": fake_rocm_torch, "ctranslate2": None}):
+            self.assertEqual(stt_server._detect_stt_device("rocm"), ("rocm", "float16"))
+
+        low_vram_torch = SimpleNamespace(
+            version=SimpleNamespace(hip=None),
+            cuda=SimpleNamespace(
+                is_available=lambda: True,
+                device_count=lambda: 1,
+                mem_get_info=lambda _idx=0: (64 * 1024**2, 8 * 1024**3),
+            ),
+            xpu=SimpleNamespace(is_available=lambda: True),
+            backends=SimpleNamespace(mps=None),
+        )
+        with patch.dict(sys.modules, {"torch": low_vram_torch, "ctranslate2": None}):
+            self.assertEqual(stt_server._detect_stt_device("auto"), ("xpu", "float16"))
+
         dev, compute = stt_server._detect_stt_device("auto")
-        self.assertIn(dev, ("cuda", "cpu", "mps"))
+        self.assertIn(dev, ("cuda", "rocm", "xpu", "mps", "cpu"))
         self.assertIsInstance(compute, str)
+
+    def test_loopback_validation_allows_ipv6(self):
+        self.assertEqual(_validate_loopback_host("::1"), "::1")
+        self.assertEqual(_validate_loopback_host("127.0.0.1"), "127.0.0.1")
+        with self.assertRaises(ValueError):
+            _validate_loopback_host("0.0.0.0")
 
     def test_clean_transcript_filters_hallucinations(self):
         self.assertEqual(stt_server._clean_transcript("ok ok ok ok ok ok"), "")

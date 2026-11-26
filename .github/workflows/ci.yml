@@ -26,14 +26,12 @@ jobs:
         with:
           python-version: '3.14'
           cache: pip
-      - name: Install worker and shared agent dependency once
+      - name: Install worker, shared agent and tools once
         run: |
-          python -m pip install -e .
-          python -m pip install -e packages/kitt-evolution
+          python -m pip install -e . -e packages/kitt-evolution 'uv==0.10.0' 'ruff>=0.9,<1'
           python -m pip install --no-deps -e packages/kitt-evals
       - name: Check project and companion uv locks
         run: |
-          python -m pip install 'uv==0.10.0'
           uv lock --check
           (cd packages/kitt-evolution && uv lock --check)
           (cd packages/kitt-evals && uv lock --check)
@@ -46,8 +44,6 @@ jobs:
       - name: Record bounded worker CPU, memory and latency benchmark
         run: python -m kitt_workers.benchmark --jobs 256 --payload-bytes 4096
       - name: Static Python checks
-        run: |
-          python -m pip install ruff
-          ruff check kitt_workers packages --select F401,F841,F821,E9 --exclude "**/__init__.py"
+        run: ruff check kitt_workers packages --select F401,F841,F821,E9 --exclude "**/__init__.py"
       - name: Verify installed dependency graph
         run: python -m pip check
