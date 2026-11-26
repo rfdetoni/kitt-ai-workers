@@ -7,10 +7,11 @@ POST /v1/audio/transcriptions endpoint using faster-whisper or openai-whisper.
 from __future__ import annotations
 
 import argparse
-import email
+import email.parser
 import ipaddress
 import json
 import os
+import socket
 import sys
 import tempfile
 import threading
@@ -57,9 +58,7 @@ def _validate_loopback_host(host: str) -> str:
         raise ValueError("STT bind host must be localhost or a loopback IP") from exc
     if not ip.is_loopback:
         raise ValueError("STT server is local-only; non-loopback bind is forbidden")
-    if ip.version != 4:
-        raise ValueError("IPv6 loopback is not supported by this HTTPServer build")
-    return value
+    return str(ip)
 
 
 def _validated_content_length(raw: str | None) -> int:
@@ -117,49 +116,48 @@ def _detect_stt_device(
     req_comp = (requested_compute or "default").strip().lower()
 
     if req_dev == "cpu":
-        return "cpu", "float32" if req_comp == "default" else req_comp
+        return "cpu", "int8" if req_comp == "default" else req_comp
 
-    # 1. Probe CTranslate2 CUDA support
-    try:
-        import ctranslate2
-        cuda_count = ctranslate2.get_cuda_device_count()
-        if cuda_count > 0:
-            supported = ctranslate2.get_supported_compute_types("cuda")
-            compute = "float16" if ("float16" in supported and req_comp == "default") else req_comp
-            print(
-                f"[STT] GPU acceleration detected: CTranslate2 CUDA ({cuda_count} device(s), compute_type={compute})",
-                flush=True,
-            )
-            return "cuda", compute
-    except Exception as exc:
-        if req_dev == "cuda":
-            print(f"[STT] GPU check failed for CUDA ({exc}). Falling back to CPU.", flush=True)
+    # 1. Probe CTranslate2 CUDA support (only when explicitly CUDA/auto, not ROCm/XPU/MPS)
+    if req_dev in {"auto", "cuda"}:
+        try:
+            import ctranslate2
+            cuda_count = ctranslate2.get_cuda_device_count()
+            if cuda_count > 0:
+                supported = ctranslate2.get_supported_compute_types("cuda")
+                compute = "float16" if ("float16" in supported and req_comp == "default") else req_comp
+                return "cuda", compute
+        except Exception as exc:
+            if req_dev == "cuda":
+                print(f"[STT] GPU check failed for CUDA ({exc}). Falling back to CPU.", flush=True)
 
-    # 2. Probe PyTorch CUDA / MPS support as secondary check
+    # 2. Probe PyTorch CUDA / ROCm / Intel XPU / MPS with VRAM check
     try:
         import torch
+        is_rocm = bool(getattr(getattr(torch, "version", None), "hip", None))
         if torch.cuda.is_available() and torch.cuda.device_count() > 0:
-            compute = "float16" if req_comp == "default" else req_comp
-            print(
-                f"[STT] GPU acceleration detected: PyTorch CUDA ({torch.cuda.device_count()} device(s), compute_type={compute})",
-                flush=True,
-            )
-            return "cuda", compute
-        if getattr(torch.backends, "mps", None) and torch.backends.mps.is_available():
-            compute = "float32" if req_comp == "default" else req_comp
-            print(f"[STT] GPU acceleration detected: Apple Silicon MPS (compute_type={compute})", flush=True)
-            return "mps", compute
+            vram_ok = True
+            mem_info = getattr(torch.cuda, "mem_get_info", None)
+            if callable(mem_info):
+                try:
+                    free_bytes, _total = mem_info(0)
+                    vram_ok = int(free_bytes) >= 256 * 1024 * 1024
+                except Exception:
+                    pass
+            if vram_ok and is_rocm and req_dev in {"auto", "rocm"}:
+                return "rocm", "float16" if req_comp == "default" else req_comp
+            if vram_ok and not is_rocm and req_dev in {"auto", "cuda"}:
+                return "cuda", "float16" if req_comp == "default" else req_comp
+        xpu = getattr(torch, "xpu", None)
+        if req_dev in {"auto", "xpu"} and xpu is not None and xpu.is_available():
+            return "xpu", "float16" if req_comp == "default" else req_comp
+        if req_dev in {"auto", "mps"} and getattr(torch.backends, "mps", None) and torch.backends.mps.is_available():
+            return "mps", "float32" if req_comp == "default" else req_comp
     except Exception:
         pass
 
-    # 3. CPU fallback
-    compute = "float32" if req_comp == "default" else req_comp
-    if req_dev == "cuda":
-        print("[STT] Warning: GPU ('cuda') was requested but no functional CUDA device was found. Falling back to CPU.", flush=True)
-    else:
-        print(f"[STT] Hardware acceleration: No supported GPU found. Using CPU (device=cpu, compute_type={compute}).", flush=True)
-
-    return "cpu", compute
+    # 3. CPU fallback (int8 uses ~4x less RAM/bandwidth than float32)
+    return "cpu", "int8" if req_comp == "default" else req_comp
 
 
 def get_whisper_engine(
@@ -399,13 +397,10 @@ def _parse_multipart(
     body: bytes,
 ) -> tuple[bytes | None, str | None, str | None, str | None]:
     """Parse multipart/form-data payload without the deprecated cgi module."""
-    raw_message = (
-        b"Content-Type: "
-        + content_type_header.encode("latin-1")
-        + b"\r\n\r\n"
-        + body
-    )
-    msg = email.message_from_bytes(raw_message)
+    parser = email.parser.BytesFeedParser()
+    parser.feed(b"Content-Type: " + content_type_header.encode("latin-1") + b"\r\n\r\n")
+    parser.feed(body)
+    msg = parser.close()
 
     file_bytes: bytes | None = None
     language: str | None = None
@@ -653,7 +648,12 @@ def run_stt_server(
         local_files_only=local_files_only,
     )
 
-    server = ThreadingHTTPServer((host, int(port)), LocalSTTRequestHandler)
+    server_cls = ThreadingHTTPServer
+    if ":" in host:
+        class _IPv6HTTPServer(ThreadingHTTPServer):
+            address_family = socket.AF_INET6
+        server_cls = _IPv6HTTPServer
+    server = server_cls((host, int(port)), LocalSTTRequestHandler)
     if parent_stdin_lifecycle:
         threading.Thread(
             target=_shutdown_on_parent_stdin_eof,
@@ -695,8 +695,8 @@ def main() -> int:
     parser.add_argument(
         "--device",
         default="auto",
-        choices=["auto", "cpu", "cuda"],
-        help="Device to run inference on (auto, cpu, cuda)",
+        choices=["auto", "cpu", "cuda", "rocm", "xpu", "mps"],
+        help="Device to run inference on (auto, cpu, cuda, rocm, xpu, mps)",
     )
     parser.add_argument(
         "--compute-type",

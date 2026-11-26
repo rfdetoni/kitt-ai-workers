@@ -223,7 +223,7 @@ wheels = [
 
 [[package]]
 name = "kitt-ai-workers"
-version = "0.1.83"
+version = "0.1.84"
 source = { editable = "." }
 dependencies = [
     { name = "kitt-protocol" },
@@ -237,14 +237,14 @@ stt = [
 [package.metadata]
 requires-dist = [
     { name = "faster-whisper", marker = "extra == 'stt'", specifier = ">=1.0" },
-    { name = "kitt-protocol", git = "https://github.com/rfdetoni/kitt-protocol.git?subdirectory=sdk%2Fpython&rev=main" },
+    { name = "kitt-protocol", git = "https://github.com/rfdetoni/kitt-protocol.git?subdirectory=sdk%2Fpython&rev=2cb05bb03e54eb2dc5f81bf151edcbd207ff194e" },
 ]
 provides-extras = ["stt"]
 
 [[package]]
 name = "kitt-protocol"
-version = "0.14.2"
-source = { git = "https://github.com/rfdetoni/kitt-protocol.git?subdirectory=sdk%2Fpython&rev=main#ac9baf8b4b8f03e839471c7bbb7d5e52e970a9ec" }
+version = "0.14.4"
+source = { git = "https://github.com/rfdetoni/kitt-protocol.git?subdirectory=sdk%2Fpython&rev=2cb05bb03e54eb2dc5f81bf151edcbd207ff194e#2cb05bb03e54eb2dc5f81bf151edcbd207ff194e" }
 
 [[package]]
 name = "numpy"
